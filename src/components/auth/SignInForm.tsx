@@ -55,15 +55,17 @@ const SignInForm = () => {
           password: data.password,
         }
         try{
-        const response= await axios.post("localhost:9090/users",userData,
+        const response= await axios.post("http://localhost:9090/users",userData,
           {headers: {"Content-type":"application/json"}}
         );
         navigate("/login", {replace:true});
+        
       }catch(error:any){
         if(error.response?.status===409){
           alert("Cet utilisateur exite déjà");
         }else{
-          alert("Votre connexion a échoué")
+          console.log("error signin: ",error);
+          alert("Votre connexion a échoué");
         }
       };
 
