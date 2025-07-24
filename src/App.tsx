@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Router, Routes } from 'react-router-dom'
 import SignInForm from './components/auth/SignInForm'
 import Test from './components/Test'
 import LogInForm from './components/auth/LogInForm'
+import InterventionForm from './components/technician_pages/InterventionForm'
 
 const App = () => {
   return (
@@ -10,10 +11,9 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<LogInForm />}/>
         <Route path="/signinform" element={<SignInForm />}/>
-        <Route path="/" element={<LogInForm />}/>
+        <Route path="/" element={<InterventionForm />}/>
       </Routes>
       </BrowserRouter>
-      
     </>
   )
 }
