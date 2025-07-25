@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import './index.css'
+import './intervention.css'
 import uploadIcon from '../../assets/image-upload.png';
 
 type Intervention={
@@ -47,6 +47,7 @@ const InterventionForm = () => {
 
     return (
         <>
+    <div className='intervention'>    
     <form onSubmit={handleSubmit}>
         <div id='form-container' className="border p-4 rounded shadow my-5" style={{ minWidth: '300px' }} >
             <h2 className="text-center mb-4">Les Informations de l'intervention</h2>
@@ -175,7 +176,7 @@ const InterventionForm = () => {
                 <button type='submit' className='btn-submit'> Enregistrez les informations</button>
             </div>
         </form>
-
+        </div>
         
         </>
   )

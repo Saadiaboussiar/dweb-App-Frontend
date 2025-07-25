@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { faCheck, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,13 +21,6 @@ const SignInForm = () => {
 
     });
 
-    useEffect(()=>{
-      console.log('showpass:', showpass);
-      console.log('faEye:', faEye);
-      console.log('faEyeSlash:', faEyeSlash);
-      console.log('icon to render:', showpass ? faEyeSlash : faEye);
-
-    },[showpass])
 
     const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
         const {name,value}=e.target;

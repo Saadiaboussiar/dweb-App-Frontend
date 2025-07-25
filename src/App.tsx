@@ -1,8 +1,7 @@
 import { BrowserRouter, Route, Router, Routes } from 'react-router-dom'
-import SignInForm from './components/auth/SignInForm'
-import Test from './components/Test'
-import LogInForm from './components/auth/LogInForm'
-import InterventionForm from './components/technician_pages/InterventionForm'
+import SignInForm from './Pages/Signin/SignInForm'
+import LogInForm from './Pages/Login/LogInForm'
+import Intervention from './Pages/InterventionInfos/Intervention'
 
 const App = () => {
   return (
@@ -11,7 +10,7 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<LogInForm />}/>
         <Route path="/signinform" element={<SignInForm />}/>
-        <Route path="/" element={<InterventionForm />}/>
+        <Route path="/" element={<Intervention />}/>
       </Routes>
       </BrowserRouter>
     </>

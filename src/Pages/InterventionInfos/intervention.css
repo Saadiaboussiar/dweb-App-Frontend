@@ -1,8 +1,8 @@
-body{
+.intervention{
   background: linear-gradient(to right, #beb7c4, #a3b4cc);
-  min-height: 100vh;       /* make sure it covers full viewport height */
   margin: 0;               /* remove default margin */
-  padding: 0;
+  padding: 20px 8%;
+  min-height: 100%;
 }
 
 #form-container{
