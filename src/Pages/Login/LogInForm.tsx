@@ -1,12 +1,16 @@
 
+import axios from "axios";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 type Data={
     username: string,
     password: string
 }
 const LogInForm = () => {
+
+    const navigate=useNavigate();
+
     const [showpass,setShopass]=useState(false);
         const [data,setData]=useState<Data>({
             username:"",
@@ -23,14 +27,32 @@ const LogInForm = () => {
             })
     }
 
+
     const togglePassword=()=>{
         if(showpass) setShopass(false);
         else setShopass(true);
     }
 
-    const handleSubmit=(e:React.FormEvent)=>{
+     const formData = new URLSearchParams();
+      formData.append("username", data.username);
+      formData.append("password", data.password);
+
+    const handleSubmit=async (e:React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-    }
+        
+        try{
+        const response = await axios.post('http://localhost:9090/login',formData,
+          {headers:{'Content-Type':'application/x-www-form-urlencoded'},}
+        );
+        localStorage.setItem('access_token',response.data['access-token'])
+        localStorage.setItem('refresh_token',response.data['refresh-token'])
+
+        navigate('/formIntervention',{replace:true});
+      }catch(error){
+        console.error("Login Failed",error);
+        alert("Invalid username or password")
+      }
+    }; 
 
   return (
     <div className="container d-flex justify-content-center align-items-center " style={{ minHeight: '100vh' }}>

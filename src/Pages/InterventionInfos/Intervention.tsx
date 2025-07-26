@@ -1,6 +1,9 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import './intervention.css'
-import uploadIcon from '../../assets/image-upload.png';
+import uploadIcon from '../../assets/icons/image-upload.png';
+import Navbar from '../../components/Navbar/Navbar';
+import { useDropzone, type DropEvent, type FileRejection } from 'react-dropzone';
+import api from '../../Interceptors/api';
 
 type Intervention={
     client: string,
@@ -15,7 +18,16 @@ type Intervention={
 }
 
 const InterventionForm = () => {
-    
+
+    const [file,setFile]=useState<File[]>([]);
+
+    const onDrop=useCallback((acceptedFiles:File[])=>{
+        setFile(acceptedFiles);
+        console.log('image dropped:');
+    },[]);
+
+    const {getRootProps,getInputProps} = useDropzone({onDrop, accept:{'image/*':[]}});
+
     const formatDate=(date:Date)=>{
         return date.toISOString().split('T')[0];
     }
@@ -40,13 +52,39 @@ const InterventionForm = () => {
         })
     }
 
-    const handleSubmit=(e:React.FormEvent)=>{
+    const bonImage=file[0];
+
+    const dataForm={
+        client: infos.client,
+        ville: infos.ville,
+        km: infos.km,
+        tech: infos.tech,
+        date: infos.date,
+        startTime: infos.startTime,
+        finishTime: infos.finishTime,
+        duration: infos.duration,
+        nbreIntervenant: infos.nbreIntervenant,
+        bonImageUrl: bonImage,
+    }
+
+    const handleSubmit=async (e:React.FormEvent)=>{
         e.preventDefault();
+        try{
+            
+            const response=await api.post('/bonIntervention',dataForm,
+                {headers:{'Content-Type':'application/json'}}
+            );
+
+        }catch(error){
+            console.log("bon interveton infos werent sent ", error);
+        }
         
     }
 
     return (
         <>
+    <Navbar/>
+
     <div className='intervention'>    
     <form onSubmit={handleSubmit}>
         <div id='form-container' className="border p-4 rounded shadow my-5" style={{ minWidth: '300px' }} >
@@ -163,9 +201,9 @@ const InterventionForm = () => {
         </div>
         </div>
 
-            <div className='img-container'>
+            <div {...getRootProps()} className='img-container'>
                 <label className='label-bon'>Entrez l'image de bon d'intervention</label>
-                <input id='bon-upload' className="bon-img" type="file" accept="image/*" />
+                <input {...getInputProps()} id='bon-upload' className="bon-img" type="file" accept="image/*" />
                 
                 <label htmlFor='bon-upload' className='img-c'>
                 <img className="upload-icon" src={uploadIcon} alt="Upload Icon"  />

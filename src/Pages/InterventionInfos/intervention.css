@@ -1,7 +1,7 @@
 .intervention{
   background: linear-gradient(to right, #beb7c4, #a3b4cc);
   margin: 0;               /* remove default margin */
-  padding: 20px 8%;
+  padding: 80px 8%;
   min-height: 100%;
 }
 
