@@ -10,4 +10,5 @@ body{
     font-family: 'poppins';
     background: black;
     color: white;
+    overflow-x: hidden;
 }

@@ -114,11 +114,17 @@
 .drop-link{
     font-size: 16px;
     cursor: pointer;
-    color: white;  
+    color: white; 
+    text-decoration: none; 
 }
 
+.dropdown:hover{
+  background-color: #fff;
+}
 .dropdown .drop-link:hover{
-    color: #a3b4cc;
+    font-weight: bold;
+    text-decoration: none;
+    color: #ad0505;
 }
 
 .caret-div{
@@ -146,6 +152,7 @@
     color: #0183ad;
     text-decoration: underline;
     text-underline-offset: 5px;
+    font-weight: 500;
 }
 
 
@@ -161,7 +168,7 @@
     color: #0183ad;
     text-decoration: underline;
     text-underline-offset: 5px;
-
+    font-weight: 500;
 }
 
 
@@ -171,11 +178,114 @@
     transform: translate(-290%,-340%);
     color: #000;
     font-size: 17px;
+    font-weight: 500;
 
 }
 .point-link:hover{
-    color: #0183ad;
+    color: #dab382;
     text-decoration: underline;
     text-underline-offset: 5px;
+   
+}
+.point-c{
+  position: relative;
+}
+/* --- Responsive Dropdown Setup --- */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  z-index: 1000;
+  margin-top: 28px;
+  
+}
 
+.hamburger {
+  width: 35px;
+  height: 3px;
+  background-color: #000;
+  border-radius: 2px;
+  margin-top: 1px;
+  
+}
+
+@media (max-width: 768px) {
+  
+  .nav-right {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 70px; /* adjust depending on your nav height */
+    right: 3%;
+    background: #f0F0F0;
+    padding: 15px;
+    gap: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    z-index: 999;
+  }
+
+  .nav-right.open {
+    display: flex;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  .point-link,
+  .notif-link,
+  .profile_link {
+    transform: none !important;
+    position: static;
+    font-size: 16px;
+  }
+  .nav-profile {
+    align-items: flex-start;
+  }
+
+  .profile_link {
+  text-align: center;
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  position: static !important;
+  transform: none !important;
+}
+  .caret {
+    display: none !important;
+  }
+
+  .caret-div:hover .dropdown {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .dropdown {
+    display: block !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: relative;
+    top: auto;
+    right: auto;
+    transform: none;
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0;
+    height: auto;
+  }
+
+  .drop-link {
+    color: #000;
+    font-weight: 500;
+    font-size: 16px;
+    text-decoration: none;
+  }
+
+  .dropdown:hover{
+    background-color: #f0F0F0;
+  }
+  
 }

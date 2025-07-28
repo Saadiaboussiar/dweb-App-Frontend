@@ -6,7 +6,7 @@ import { useDropzone, type DropEvent, type FileRejection } from 'react-dropzone'
 import api from '../../Interceptors/api';
 
 type Intervention={
-    client: string,
+    client: string, //what will be? name or cin or what
     ville: string,
     km: number,
     tech: string,
@@ -15,6 +15,7 @@ type Intervention={
     finishTime: string,
     duration: string,
     nbreIntervenant: number,
+    bonImageUrl:string,
 }
 
 const InterventionForm = () => {
@@ -42,6 +43,7 @@ const InterventionForm = () => {
         finishTime: "",
         duration: "",
         nbreIntervenant: 0,
+        bonImageUrl:"",
     }) 
 
     const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
@@ -52,28 +54,30 @@ const InterventionForm = () => {
         })
     }
 
-    const bonImage=file[0];
 
-    const dataForm={
-        client: infos.client,
-        ville: infos.ville,
-        km: infos.km,
-        tech: infos.tech,
-        date: infos.date,
-        startTime: infos.startTime,
-        finishTime: infos.finishTime,
-        duration: infos.duration,
-        nbreIntervenant: infos.nbreIntervenant,
-        bonImageUrl: bonImage,
-    }
+
+    
 
     const handleSubmit=async (e:React.FormEvent)=>{
         e.preventDefault();
+
+        const bonImage=file[0];
+        const dataForm= new FormData();
+
+        for(const key in infos){
+            dataForm.append(key,infos[key as keyof Intervention] as any);
+        }
+        
+        dataForm.append('bonImage',bonImage);
+
         try{
             
             const response=await api.post('/bonIntervention',dataForm,
-                {headers:{'Content-Type':'application/json'}}
+                {headers:{'Content-Type':'multipart/form-data'}}
             );
+            
+            alert('Upload success!');
+            console.log(response.data);
 
         }catch(error){
             console.log("bon interveton infos werent sent ", error);

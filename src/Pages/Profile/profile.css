@@ -1,0 +1,151 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+overflow-y: hidden;
+}
+.page-container {
+    background-image: linear-gradient(180deg, rgba(145, 134, 134, 0.8) 10%,transparent);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.navbar-container {
+  position: fixed;
+  top: 0;}
+
+.form-c{
+  padding: 20px;
+  margin-top: 80px;  
+}
+main {
+  margin-top: 0px; /* height of your navbar */
+  padding: 20px;
+}
+
+.h1{
+    text-align: center;
+    margin-top: 8px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.profile-icon{
+    width: 50%;
+    margin-top: 45px;
+    margin-left: 10px;
+}
+
+.inputs{
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); 
+  row-gap: 10px;
+  column-gap: 5px;
+  padding: 10px 0px 0px 0px;
+  width: 600px;
+
+  transform: translate(22%,-110%);
+}
+
+.input-label-left{
+    margin-left: 60px;
+    font-weight:500;
+}
+
+.input-label-right{
+    margin-left: -35px;
+    font-weight:500;
+}
+
+
+.inputs input{
+    background-color: #f0f0f0;
+    width: 350px;
+    margin-right:-6px;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.input-left {
+  transform: translateX(15%);
+}
+
+.input-right {
+  transform: translateX(-15%);
+}
+
+.inputs input:hover{
+    box-shadow: #1f1f1f;
+}
+
+@media (max-width: 768px) {
+  .inputs {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  .inputs input {
+    width: 100%;
+  }
+}
+.btn-c{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+    position: relative;
+    margin-top: -330px;
+    margin-left: 100px;
+}
+
+.btn-s{
+  background-color: #4ca0ca; /* Green */
+  color: white;
+  padding: 15px 25px;
+  border: none;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.btn-s:hover{
+    background-color: #67aacc;
+    font-weight: bold;
+}
+
+.Edit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.edit-profile {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1f1f1f;
+  background-color: #F0F0F0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 220px;
+  margin-top: 5px;
+}
+
+.edit-profile:hover {
+  background-color: #77bfe2;
+  color: white;
+}
+
