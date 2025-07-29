@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import "./signin.css"
 
 type Data={
     username:string,
@@ -88,12 +89,11 @@ const SignInForm = () => {
 
     
   return (
-        <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-      <form className="border p-4 rounded shadow" style={{ minWidth: '300px' }} onSubmit={handleSubmit}>
-        <h2 className="text-center mb-4">SignIn</h2>
+      <div className="container d-flex justify-content-center align-items-center bg" style={{ minHeight: '100vh'}}>
+      <form className="border p-4 rounded shadow " style={{ minWidth: '360px', height:'360px' }} onSubmit={handleSubmit}>
+        <h2 className="text-center mb-4">Sign Up</h2>
 
         <div className="mb-3 position-relative">
-          <label htmlFor="username" className="form-label">Nom d'utilisateur</label>
           <input
             type="text"
             className="form-control"
@@ -107,7 +107,6 @@ const SignInForm = () => {
         </div>
 
         <div className="mb-3 position-relative">
-          <label htmlFor="password" className="form-label">Mot de passe</label>
           <input
             type={showpass ? 'text' : 'password'}
             className="form-control pe-5"
@@ -137,7 +136,6 @@ const SignInForm = () => {
           
         </div>
         <div className="mb-3 position-relative">
-          <label htmlFor="password" className="form-label">Confirme mot de passe</label>
           <input
             type={showpass ? 'text' : 'password'}
             className="form-control pe-5"
@@ -167,7 +165,7 @@ const SignInForm = () => {
           */}
         </div>
 
-        <button type="submit" className="btn btn-primary w-100" >Signin</button>
+        <button type="submit" className="submit-btn" ><h5>SignUp</h5></button>
       </form>
     </div>
   )

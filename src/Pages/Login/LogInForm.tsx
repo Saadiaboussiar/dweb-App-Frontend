@@ -55,8 +55,8 @@ const LogInForm = () => {
     }; 
 
   return (
-    <div className="container d-flex justify-content-center align-items-center " style={{ minHeight: '100vh' }}>
-      <form className="border p-4 rounded shadow " style={{ minWidth: '360px',height:'360px' }} onSubmit={handleSubmit}>
+    <div className="container d-flex justify-content-center align-items-center bg" style={{ minHeight: '100vh' }}>
+      <form className="border p-4 rounded shadow-lg " style={{ minWidth: '360px',height:'360px' }} onSubmit={handleSubmit}>
         <h1 className="text-center mb-4">Sign In</h1>
 
         <div className="mb-3 position-relative">
@@ -101,7 +101,7 @@ const LogInForm = () => {
         
         <Link className="link" to='/signinform'>Sign Up</Link>
 
-        <button type="submit" className="btn btn-primary w-100 mt-3 p-2"><h5>Sign In</h5></button>
+        <button type="submit" className="submit-btn"><h5>Sign In</h5></button>
       </form>
     </div>
   )

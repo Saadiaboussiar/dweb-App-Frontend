@@ -210,7 +210,7 @@
   
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1168px) {
   
   .nav-right {
     display: none;
@@ -287,5 +287,12 @@
   .dropdown:hover{
     background-color: #f0F0F0;
   }
-  
+  .point-link:hover{
+    font-weight: bold;
+  }
+  .inter-form{
+    width: 140px;
+    text-align: center;
+    
+  }
 }

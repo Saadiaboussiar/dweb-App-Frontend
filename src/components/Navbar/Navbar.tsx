@@ -29,7 +29,7 @@ const Navbar = () => {
     </div>
     <Link className='notif-link' to='/notifications'>NOTIFICATIONS</Link>
     <div className='nav-profile'>
-      <Link className='profile_link' to='/profile'>PROFILE</Link>
+      <Link className='profile_link' to='/techprofile'>PROFILE</Link>
       <div className='caret-div'>
         <img src={caret} alt='caret' className='caret' />
         <div className='dropdown'>
