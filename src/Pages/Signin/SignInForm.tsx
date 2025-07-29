@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import "./signin.css"
 
 type Data={
-    username:string,
+    email:string,
     password: string,
     confiremedPassword: string
 }
@@ -16,7 +16,7 @@ const SignInForm = () => {
     const [showpass,setShopass]=useState(false);
 
     const [data,setData]=useState<Data>({
-        username:"",
+        email:"",
         password:"",
         confiremedPassword: "",
 
@@ -44,7 +44,7 @@ const SignInForm = () => {
       if(data.password===data.confiremedPassword){
         
         const userData={
-          username: data.username,
+          email: data.email,
           password: data.password,
         }
         try{
@@ -97,11 +97,11 @@ const SignInForm = () => {
           <input
             type="text"
             className="form-control"
-            id="username"
-            name="username"
-            value={data.username}
+            id="email"
+            name="email"
+            value={data.email}
             onChange={handleChange}
-            placeholder="Entrez votre nom d'utilisateur"
+            placeholder="Entrez votre adresse email"
             required
           />
         </div>

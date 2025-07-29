@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 type Data={
-    username: string,
+    email: string,
     password: string
 }
 const LogInForm = () => {
@@ -13,7 +13,7 @@ const LogInForm = () => {
 
     const [showpass,setShopass]=useState(false);
         const [data,setData]=useState<Data>({
-            username:"",
+            email:"",
             password:"",
     
         });
@@ -34,7 +34,7 @@ const LogInForm = () => {
     }
 
      const formData = new URLSearchParams();
-      formData.append("username", data.username);
+      formData.append("email", data.email);
       formData.append("password", data.password);
 
     const handleSubmit=async (e:React.FormEvent<HTMLFormElement>)=>{
@@ -63,11 +63,11 @@ const LogInForm = () => {
           <input
             type="text"
             className="form-control p-3"
-            id="username"
-            name="username"
-            value={data.username}
+            id="email"
+            name="email"
+            value={data.email}
             onChange={handleChange}
-            placeholder="Nom d'utilisateur"
+            placeholder="Email"
             required
           />
         </div>
