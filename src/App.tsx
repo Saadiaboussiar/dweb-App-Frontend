@@ -4,6 +4,7 @@ import LogInForm from './Pages/Login/LogInForm'
 import Intervention from './Pages/InterventionInfos/Intervention'
 import TechProfile from './Pages/Technician-Profile/TechProfile'
 import AdminProfile from './Pages/Admin-profile/AdminProfile'
+import RequireAuth from './auth/RequireAuth'
 
 const App = () => {
   return (
@@ -12,10 +13,10 @@ const App = () => {
         <Route path="/login" element={<LogInForm />}/>
         <Route path="/signinform" element={<SignInForm />}/>
         <Route path="/" element={<LogInForm />}/>
-        <Route path='/formIntervention' element={<Intervention />}/>
+        <Route path='/formIntervention' element={<RequireAuth> <Intervention /> </RequireAuth> }/>
         <Route path='/SignIn' element={<LogInForm/>} />
-        <Route path='/techprofile' element={<TechProfile />} />
-        <Route path='/adminprofile' element={<AdminProfile/>}/>
+        <Route path='/techprofile' element={<RequireAuth> <TechProfile /> </RequireAuth> } />
+        <Route path='/adminprofile' element={<RequireAuth> <AdminProfile/> </RequireAuth> }/>
       </Routes>
 
     </>

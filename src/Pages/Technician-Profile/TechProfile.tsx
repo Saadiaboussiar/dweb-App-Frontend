@@ -12,16 +12,9 @@ type profileData = {
   phoneNumber: string,
   cin: string,
   cnss: string,
+  profileUrl: string
 };
-type getprofileData = {
-  firstName: string,
-  lastName: string,
-  email: string,
-  phoneNumber: string,
-  cin: string,
-  cnss: string,
-  profile: string
-};
+
 const TechProfile = () => {
   const [infos, setInfos] = useState<profileData>({
     firstName: '',
@@ -30,19 +23,16 @@ const TechProfile = () => {
     phoneNumber: '',
     cin: '',
     cnss: '',
+    profileUrl:'',
   });
 
-  const [getInfos,setgetInfos]=useState<getprofileData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phoneNumber: '',
-    cin: '',
-    cnss: '',
-    profile:'',
-  })
+
+  const [isUpdated,setIsUpdated]=useState(false);
 
   const [photo, setPhoto] = useState<File | null>(null);
+
+  const [isNew,setIsNew]=useState(true);
+
 
   const onDrop = useCallback((acceptedFile: File[]) => {
     setPhoto(acceptedFile[0]);
@@ -62,45 +52,75 @@ const TechProfile = () => {
     });
   };
 
-
-  const handleSubmit=async (e:React.FormEvent)=>{
-        e.preventDefault();
-
-        const dataForm= new FormData();
+  const dataForm= new FormData();
 
         for(const key in infos){
+          if(key!="profileUrl"){
             dataForm.append(key,infos[key as keyof profileData] as any);
         }
+      }
         if(photo) dataForm.append('profileImage',photo);
 
-        try{
+  const dataUpdate= async()=>{
+    try{
+    const response=await api.put("/technicianProfile", dataForm, 
+      {headers:{'Content-Type': 'multipart/form-data'}}
+     );
+     setPhoto(null);
+    alert('Infos updated successfully!');
+    fetchProfile();
+    setIsUpdated(true);
+    
+  }catch(error){
+    console.log("technician infos werent updated ", error);
+  }
+  } 
+
+  const dataSave=async()=>{
+
+    try{
             
-            const response=await api.post('/technicianProfile',dataForm,
-                {headers:{'Content-Type':'multipart/form-data'}}
-            );
-            
+        const response=await api.post('/technicianProfile',dataForm,
+            {headers:{'Content-Type': 'multipart/form-data'}}
+        );
+            setPhoto(null);
             alert('Infos saved successfully!');
             fetchProfile();
             
         }catch(error){
             console.log("technician infos werent saved ", error);
         }
+
+  }
+
+  const handleSubmit=async (e:React.FormEvent)=>{
+        e.preventDefault();
+        const isExisting = infos && Object.keys(infos).length ===7;
         
+        try {
+        if(!isNew){
+         await dataUpdate();
+        }else{
+          await dataSave();
+        }
+
+        alert("Saved!");
+
+      }catch(err){
+        console.error("Submit error:", err)
+      }
     }
 
-    const [fname,setfname]=useState('');
-    const [lname,setlname]=useState('');
-    const [email,setemail]=useState('');
-    const [pnumber,setpnumber]=useState('');
-    const [cin,setcin]=useState('');
-    const [cnss,setcnss]=useState('');
-    const [profileUrl,setprofileUrl]=useState('');
 
     const fetchProfile=async ()=>{
       try{
-        const response = await api.get<getprofileData>('/technicianProfile')
-        setgetInfos(response.data);
-        
+        const response = await api.get<profileData>('/technicianProfile')
+        setInfos(response.data);
+        setIsNew(false);
+
+        console.log("fetched data: ", infos);
+        console.log("profileurl: ",infos.profileUrl);
+
       }catch(error){
         console.error('Error fetching profile: ',error);
       }
@@ -108,8 +128,7 @@ const TechProfile = () => {
 
     useEffect(()=>{
       fetchProfile();
-    },[])
-    console.log(getInfos.profile)
+    },[isUpdated])
 
 
   return (
@@ -126,7 +145,12 @@ const TechProfile = () => {
            <div {...getRootProps()} className='profile-c'>
                 <input {...getInputProps()} id='bon-upload' className="bon-img" type="file" accept="image/*" />
                 <label htmlFor='bon-upload' className='profile-c'>
-                  <img className="profile-icon" src={getInfos.profile ? getInfos.profile : profile_icon} alt="Upload Icon" />
+                {
+                  infos.profileUrl ?
+                  <img className="profile-icon" src={`${encodeURI(infos.profileUrl)}?t=${Date.now()}`} alt="Upload Icon" />
+                  : 
+                  <img className="profile-icon" src={profile_icon} alt="Upload Icon" />
+                }
                   
                   <div className='Edit'>
                     <p className='edit-profile'>Modifier Votre Photo de Profile</p>
@@ -142,32 +166,32 @@ const TechProfile = () => {
 
               <div className="mb-3 ">
                 <label className='input-label-left'>Nom :</label>
-                <input type="text" className="input-left" id="lastname" name="lastName" value={getInfos.lastName ? getInfos.lastName: infos.lastName } onChange={handleChange} placeholder="Nom" required />
+                <input type="text" className="input-left" id="lastname" name="lastName" value={infos.lastName } onChange={handleChange} placeholder="Nom" required />
               </div>
 
               <div className="mb-3">
                 <label className='input-label-right'>Prénom: </label>
-                <input type="text" className="input-right" id="firstName" name="firstName" value={getInfos.firstName ? getInfos.firstName: infos.firstName} onChange={handleChange} placeholder={infos.firstName=="" ? "Prénom": infos.firstName} required />
+                <input type="text" className="input-right" id="firstName" name="firstName" value={infos.firstName} onChange={handleChange} placeholder={infos.firstName=="" ? "Prénom": infos.firstName} required />
               </div>
 
               <div className="mb-3">
                 <label className='input-label-left'>Email :</label>
-                <input type="text" className="input-left" id="email" name="email" value={getInfos.email ? getInfos.email: infos.email} onChange={handleChange} placeholder="Email" required />
+                <input type="text" className="input-left" id="email" name="email" value={infos.email } onChange={handleChange} placeholder="Email" required />
               </div>
 
               <div className="mb-3">
                 <label className='input-label-right'>Numéro de téléphone :</label>
-                <input type="text" className="input-right" id="phoneNumber" name="phoneNumber" value={getInfos.phoneNumber ? getInfos.phoneNumber: infos.phoneNumber} onChange={handleChange} placeholder="Numéro de téléphone" required />
+                <input type="text" className="input-right" id="phoneNumber" name="phoneNumber" value={infos.phoneNumber} onChange={handleChange} placeholder="Numéro de téléphone" required />
               </div>
 
               <div className="mb-3">
                 <label className='input-label-left'>CIN :</label>
-                <input type="text" className="input-left" id="cin" name="cin" value={getInfos.cin ? getInfos.cin: infos.cin} onChange={handleChange} placeholder="Cin" required />
+                <input type="text" className="input-left" id="cin" name="cin" value={infos.cin } onChange={handleChange} placeholder="Cin" required />
               </div>
 
               <div className="mb-3">
                 <label className='input-label-right'>CNSS :</label>
-                <input type="text" className="input-right" id="cnss" name="cnss" value={getInfos.cnss ? getInfos.cnss: infos.cnss} onChange={handleChange} placeholder="Cnss" required />
+                <input type="text" className="input-right" id="cnss" name="cnss" value={infos.cnss  } onChange={handleChange} placeholder="Cnss" required />
               </div>
 
             </div>
