@@ -6,6 +6,7 @@ import TechProfile from './Pages/Technician-Profile/TechProfile'
 import AdminProfile from './Pages/Admin-profile/AdminProfile'
 import RequireAuth from './auth/RequireAuth'
 import TechIntervention from './Pages/Intervention/TechIntervention'
+import Dashboard from './Pages/BonDashboard/Dashboard'
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
         <Route path='/techprofile' element={<RequireAuth> <TechProfile /> </RequireAuth> } />
         <Route path='/adminprofile' element={<RequireAuth> <AdminProfile/> </RequireAuth> }/>
         <Route path='/Techintervetion' element={<TechIntervention/>}></Route>
+        <Route path='Dashboard' element={<Dashboard/>}></Route>
       </Routes>
 
     </>
