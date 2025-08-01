@@ -5,6 +5,7 @@ import Intervention from './Pages/InterventionInfos/Intervention'
 import TechProfile from './Pages/Technician-Profile/TechProfile'
 import AdminProfile from './Pages/Admin-profile/AdminProfile'
 import RequireAuth from './auth/RequireAuth'
+import TechIntervention from './Pages/Intervention/TechIntervention'
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
         <Route path='/SignIn' element={<LogInForm/>} />
         <Route path='/techprofile' element={<RequireAuth> <TechProfile /> </RequireAuth> } />
         <Route path='/adminprofile' element={<RequireAuth> <AdminProfile/> </RequireAuth> }/>
+        <Route path='/Techintervetion' element={<TechIntervention/>}></Route>
       </Routes>
 
     </>
