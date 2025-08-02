@@ -9,13 +9,13 @@ type Intervention={
     client: string, //what will be? name or cin or what
     ville: string,
     km: number,
-    tech: string,
+    technicianFN:string,
+    technicianLN: string,
     date: string,
     startTime: string,
     finishTime: string,
     duration: string,
     nbreIntervenant: number,
-    bonImageUrl:string,
 }
 
 const InterventionForm = () => {
@@ -37,13 +37,14 @@ const InterventionForm = () => {
         client: "",
         ville: "",
         km:0,
-        tech: "",
+        technicianFN: "",
+        technicianLN:"",
         date: formatDate(new Date()),
         startTime: "",
         finishTime: "",
         duration: "",
         nbreIntervenant: 0,
-        bonImageUrl:"",
+       
     }) 
 
     const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
@@ -136,9 +137,21 @@ const InterventionForm = () => {
             <input
             type='text'
             className="form-control"
-            id="tech"
-            name="tech"
-            value={infos.tech}
+            id="technicianLN"
+            name="technicianLN"
+            value={infos.technicianLN}
+            onChange={handleChange}
+            required />
+
+            </div>
+            <div className="mb-3 position-relative col-md-4">
+            <label>Prénom de technicien :</label>
+            <input
+            type='text'
+            className="form-control"
+            id="technicianFN"
+            name="technicianFN"
+            value={infos.technicianFN}
             onChange={handleChange}
             required />
             </div>
