@@ -1,30 +1,47 @@
-import { BrowserRouter, Route, Router, Routes } from 'react-router-dom'
-import SignInForm from './Pages/Signin/SignInForm'
-import LogInForm from './Pages/Login/LogInForm'
-import Intervention from './Pages/InterventionInfos/Intervention'
-import TechProfile from './Pages/Technician-Profile/TechProfile'
-import AdminProfile from './Pages/Admin-profile/AdminProfile'
-import RequireAuth from './auth/RequireAuth'
-import TechIntervention from './Pages/Intervention/TechIntervention'
-import Dashboard from './Pages/BonDashboard/Dashboard'
+import React from "react";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { ColorModeContext, useMode } from "./theme";
+import Topbar from './admin-ui/global/Topbar';
+import Sidebar from "./admin-ui/global/Sidebar";
+import { Route, Routes } from "react-router-dom";
+import Dashboard from "./admin-ui/pages/Dashboard";
+import InterventionsCards from "./admin-ui/pages/operations/InterventionsCards";
+import InterventionHistory from "./admin-ui/pages/operations/InterventionHistory";
+import ClientsInfos from "./admin-ui/pages/operations/ClientsInfos";
+import ClientsAnalysis from "./admin-ui/pages/analysis-reports/ClientsAnalysis";
+import ClientsReports from "./admin-ui/pages/analysis-reports/ClientsReports";
+import TechniciansBonus from "./admin-ui/pages/configuration/TechniciansBonus";
+import Aide from "./admin-ui/pages/configuration/Aide";
+import TechniciansInfos from "./admin-ui/pages/operations/TechniciansInfos";
 
-const App = () => {
+
+const App: React.FC = () => {
+  const [theme, colorMode]=useMode();
+
   return (
-    <>
-      <Routes>
-        <Route path="/login" element={<LogInForm />}/>
-        <Route path="/signinform" element={<SignInForm />}/>
-        <Route path="/" element={<LogInForm />}/>
-        <Route path='/formIntervention' element={<RequireAuth> <Intervention /> </RequireAuth> }/>
-        <Route path='/SignIn' element={<LogInForm/>} />
-        <Route path='/techprofile' element={<RequireAuth> <TechProfile /> </RequireAuth> } />
-        <Route path='/adminprofile' element={<RequireAuth> <AdminProfile/> </RequireAuth> }/>
-        <Route path='/Techintervetion' element={<TechIntervention/>}></Route>
-        <Route path='/Dashboard' element={<Dashboard/>}></Route>
-      </Routes>
+    <ColorModeContext.Provider value={colorMode}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline/>
+          <div className="app">
+            <Sidebar />
+            <main className="content" style={{ borderLeft: "none", boxShadow: "none" }}>
+              <Topbar />
+              <Routes>
+                <Route path='/' element={<Dashboard/>}/>
+                <Route path='/interventions' element={<InterventionsCards/>}/>
+                <Route path='/allInterventions' element={<InterventionHistory/>}/>
+                <Route path='/technicians' element={<TechniciansInfos/>}/> 
+                <Route path='/clients' element={<ClientsInfos/>}/> 
+                <Route path='/clientAnalysis' element={<ClientsAnalysis/>}/> 
+                <Route path='/clientReports' element={<ClientsReports/>}/> 
+                <Route path='/bonus' element={<TechniciansBonus/>}/> 
+                <Route path='/aide' element={<Aide/>}/> 
+              </Routes>
+            </main>
+          </div>
+        </ThemeProvider>
+    </ColorModeContext.Provider>
+  );
+};
 
-    </>
-  )
-}
-
-export default App
+export default App;
