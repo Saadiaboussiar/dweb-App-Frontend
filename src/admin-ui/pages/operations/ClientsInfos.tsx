@@ -1,14 +1,19 @@
-import Box from '@mui/material/Box'
-import Header from '../../compenents/Header'
+import { Outlet } from 'react-router-dom';
+import NotificationsProvider from '../../../hooks/useNotifications/NotificationsProvider';
+import DialogsProvider from '../../../hooks/useDialogs/DialogsProvider';
 
-const ClientsInfos = () => {
+const ClientInfos = () => {
   return (
-    <Box m="20px">
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="LES INFORMATIONS DES CLIENTS" subTitle="Gérez et consultez les informations de vos clients"/>
-      </Box>
-    </Box>
+    <>
+    
+    <NotificationsProvider>
+      <DialogsProvider>
+        {/* Remove RouterProvider completely */}
+        <Outlet /> {/* This renders nested routes */}
+      </DialogsProvider>
+    </NotificationsProvider>
+    </>
   )
 }
 
-export default ClientsInfos
+export default ClientInfos

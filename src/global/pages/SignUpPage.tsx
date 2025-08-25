@@ -1,0 +1,296 @@
+import * as React from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import CssBaseline from "@mui/material/CssBaseline";
+import Divider from "@mui/material/Divider";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormLabel from "@mui/material/FormLabel";
+import FormControl from "@mui/material/FormControl";
+import Link from "@mui/material/Link";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import MuiCard from "@mui/material/Card";
+import { styled } from "@mui/material/styles";
+import AppTheme from "../../shared-theme/AppTheme";
+import {
+  GoogleIcon,
+  FacebookIcon,
+} from "../../admin-ui/components/CustomIcons";
+import ColorModeSelect from "../../shared-theme/ColorModeSelect";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import {
+  selectRoles,
+  selectUsername,
+  setError,
+  setIsLoading,
+  setRoles,
+  setUsername,
+} from "../../comp_management/redux_slices/authSlice";
+import { store, type RootState } from "../../comp_management/store";
+import { useRoles } from "../../hooks/useRoles";
+import { useEffect } from "react";
+
+const Card = styled(MuiCard)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignSelf: "center",
+  width: "100%",
+  padding: theme.spacing(4),
+  gap: theme.spacing(2),
+  margin: "auto",
+  boxShadow:
+    "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
+  [theme.breakpoints.up("sm")]: {
+    width: "450px",
+  },
+  ...theme.applyStyles("dark", {
+    boxShadow:
+      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
+  }),
+}));
+
+const SignUpContainer = styled(Stack)(({ theme }) => ({
+  height: "calc((1 - var(--template-frame-height, 0)) * 100dvh)",
+  minHeight: "100%",
+  padding: theme.spacing(2),
+  [theme.breakpoints.up("sm")]: {
+    padding: theme.spacing(4),
+  },
+  "&::before": {
+    content: '""',
+    display: "block",
+    position: "absolute",
+    zIndex: -1,
+    inset: 0,
+    backgroundImage:
+      "radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))",
+    backgroundRepeat: "no-repeat",
+    ...theme.applyStyles("dark", {
+      backgroundImage:
+        "radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))",
+    }),
+  },
+}));
+
+interface FormValues {
+  username: string;
+  email: string;
+  password: string;
+}
+
+interface ApiResponse {
+  username: string;
+  roles: string[];
+  email?: string;
+  error?: string;
+}
+
+export default function SignUp(props: { disableCustomTheme?: boolean }) {
+  const [emailError, setEmailError] = React.useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
+  const [passwordError, setPasswordError] = React.useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
+  const [nameError, setNameError] = React.useState(false);
+  const [nameErrorMessage, setNameErrorMessage] = React.useState("");
+
+  const navigate = useNavigate();
+
+  const username = useSelector(selectUsername);
+  const roles = useSelector(selectRoles);
+
+  const validateInputs = () => {
+    const email = document.getElementById("email") as HTMLInputElement;
+    const password = document.getElementById("password") as HTMLInputElement;
+    const username = document.getElementById("username") as HTMLInputElement;
+
+    let isValid = true;
+
+    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
+      setEmailError(true);
+      setEmailErrorMessage(
+        "S'il vous plaît, entrez une adresse e-mail valide."
+      );
+      isValid = false;
+    } else {
+      setEmailError(false);
+      setEmailErrorMessage("");
+    }
+
+    if (!password.value || password.value.length < 6) {
+      setPasswordError(true);
+      setPasswordErrorMessage(
+        "Le mot de passe doit contenir au moins 6 caractères."
+      );
+      isValid = false;
+    } else {
+      setPasswordError(false);
+      setPasswordErrorMessage("");
+    }
+
+    if (!username.value || username.value.length < 1) {
+      setNameError(true);
+      setNameErrorMessage("Le nom d'utilisateur est requis.");
+      isValid = false;
+    } else {
+      setNameError(false);
+      setNameErrorMessage("");
+    }
+
+    return isValid;
+  };
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    console.log("Latest roles:", roles);
+    console.log("Latest username:", username);
+  }, [roles, username]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    dispatch(setIsLoading(true));
+    // Client-side validation
+    if (nameError || emailError || passwordError) return;
+
+    const formData = new FormData(event.currentTarget);
+    const data: FormValues = {
+      username: formData.get("username") as string,
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    };
+
+    try {
+      console.log("Submitting:", data);
+
+      const response = await axios.post<ApiResponse>(
+        "http://localhost:9090/users",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("User roles:", response.data.roles);
+      console.log("usernmae: ", response.data.username);
+      dispatch(setRoles(response.data.roles));
+      dispatch(setUsername(response.data.username));
+
+      console.log("roles after dispatch: ", roles);
+      console.log("username after dispatch: ", username);
+      console.log("Full auth state structure:", store.getState());
+      console.log("Full auth state structure:", store.getState().auth.username);
+      console.log("Full auth state structure:", store.getState().auth.roles);
+
+      navigate("/signin", { replace: true });
+    } catch (error: any) {
+      if (error.response) {
+        dispatch(
+          setError(error.response?.data?.message || "Authentication failed")
+        );
+        console.log("Full error object:", error);
+      } else {
+        alert("Problème de connexion au serveur");
+      }
+    } finally {
+      dispatch(setIsLoading(false));
+    }
+  };
+
+  return (
+    <AppTheme {...props}>
+      <CssBaseline enableColorScheme />
+      <ColorModeSelect sx={{ position: "fixed", top: "1rem", right: "1rem" }} />
+      <SignUpContainer direction="column" justifyContent="space-between">
+        <Card variant="outlined">
+          <Typography
+            component="h1"
+            variant="h4"
+            sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
+          >
+            S'inscrire
+          </Typography>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            method="POST"
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+          >
+            <FormControl>
+              <FormLabel htmlFor="name">Nom complet</FormLabel>
+              <TextField
+                autoComplete="username"
+                name="username"
+                required
+                fullWidth
+                id="username"
+                placeholder="Ahmed Essaidi"
+                error={nameError}
+                helperText={nameErrorMessage}
+                color={nameError ? "error" : "primary"}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="email">Email</FormLabel>
+              <TextField
+                required
+                fullWidth
+                id="email"
+                placeholder="ton@email.com"
+                name="email"
+                autoComplete="email"
+                variant="outlined"
+                error={emailError}
+                helperText={emailErrorMessage}
+                color={passwordError ? "error" : "primary"}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="password">Mot de passe</FormLabel>
+              <TextField
+                required
+                fullWidth
+                name="password"
+                placeholder="••••••"
+                type="password"
+                id="password"
+                autoComplete="new-password"
+                variant="outlined"
+                error={passwordError}
+                helperText={passwordErrorMessage}
+                color={passwordError ? "error" : "primary"}
+              />
+            </FormControl>
+            <FormControlLabel
+              control={<Checkbox value="allowExtraEmails" color="primary" />}
+              label="J'accepte de recevoir des mises à jour par e-mail"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              onClick={validateInputs}
+            >
+              S'inscrire
+            </Button>
+          </Box>
+          <Divider>
+            <Typography sx={{ color: "text.secondary" }}>ou</Typography>
+          </Divider>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Typography sx={{ textAlign: "center" }}>
+              Vous avez déjà un compte?{" "}
+              <Link href="/signin" variant="body2" sx={{ alignSelf: "center" }}>
+                Se connecter
+              </Link>
+            </Typography>
+          </Box>
+        </Card>
+      </SignUpContainer>
+    </AppTheme>
+  );
+}

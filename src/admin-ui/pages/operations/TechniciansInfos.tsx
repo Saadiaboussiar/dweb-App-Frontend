@@ -1,14 +1,20 @@
-import Box from '@mui/material/Box'
-import Header from '../../compenents/Header'
+import Box from "@mui/material/Box";
+import Header from "../../../global/components/Header";
+import { Outlet, RouterProvider } from "react-router-dom";
+import NotificationsProvider from "../../../hooks/useNotifications/NotificationsProvider";
+import DialogsProvider from "../../../hooks/useDialogs/DialogsProvider";
 
 const TechniciansInfos = () => {
   return (
-    <Box m="20px">
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="LES INFORMATION DES TECHNICIENS" subTitle="Consultez et mettez à jour les données de vos techniciens"/>
-      </Box>
-    </Box>
-  )
-}
+    <>
+      <NotificationsProvider>
+        <DialogsProvider>
+          {/* Remove RouterProvider completely */}
+          <Outlet /> {/* This renders nested routes */}
+        </DialogsProvider>
+      </NotificationsProvider>
+    </>
+  );
+};
 
-export default TechniciansInfos
+export default TechniciansInfos;
