@@ -1,7 +1,7 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../shared-theme/theme";
 import { useSelector } from "react-redux";
-import { selectIsCollapsed } from "../../comp_management/redux_slices/layoutSlice";
+import { selectIsCollapsed } from "../../features/slices/layoutSlice";
 
 type hederProps = {
   title: string;

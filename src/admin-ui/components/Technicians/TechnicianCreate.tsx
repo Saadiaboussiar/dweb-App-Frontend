@@ -12,7 +12,10 @@ import TechnicianForm, {
 } from "./TechnicianForm";
 import PageContainer from "../PageContainer";
 import { useDispatch, useSelector } from "react-redux";
-import {selectTechnicianId, setTechnicianId} from "../../../comp_management/redux_slices/technicianAuthSlice";
+import {
+  selectTechnicianId,
+  setTechnicianId,
+} from "../../../features/slices/technicianAuthSlice";
 
 const INITIAL_FORM_VALUES: Partial<TechnicianFormState["values"]> = {
   firstName: "",
@@ -36,8 +39,8 @@ export default function TechnicianCreate() {
   const formValues = formState.values;
   const formErrors = formState.errors;
 
-  const technicianId=useSelector(selectTechnicianId);
-  const dispatch=useDispatch();
+  const technicianId = useSelector(selectTechnicianId);
+  const dispatch = useDispatch();
 
   const setFormValues = React.useCallback(
     (newFormValues: Partial<TechnicianFormState["values"]>) => {
@@ -108,10 +111,9 @@ export default function TechnicianCreate() {
       try {
         const result = await createTechnician(formData);
 
-        if (result!==null && result!==undefined) {
-          
+        if (result !== null && result !== undefined) {
           dispatch(setTechnicianId(result));
-          console.log("id of technician :",technicianId);
+          console.log("id of technician :", technicianId);
 
           notifications.show("Technicien créé avec succès.", {
             severity: "success",

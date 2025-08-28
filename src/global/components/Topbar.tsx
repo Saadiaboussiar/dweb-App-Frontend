@@ -11,7 +11,7 @@ import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { useSelector } from "react-redux";
-import { selectIsCollapsed } from "../../comp_management/redux_slices/layoutSlice";
+import { selectIsCollapsed } from "../../features/slices/layoutSlice";
 
 const Topbar = () => {
   const theme = useTheme();

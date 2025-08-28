@@ -11,7 +11,7 @@ import { listenForMessages } from "./utils/messageTest.ts";
 import { MessageErrorBoundary } from "./admin-ui/components/MessageErrorBoundary.tsx";
 import NotificationsProvider from "./hooks/useNotifications/NotificationsProvider.tsx";
 import { Provider } from "react-redux";
-import { store } from "./comp_management/store.ts";
+import { store } from "./features/store.ts";
 
 function MessageListener() {
   useEffect(() => {

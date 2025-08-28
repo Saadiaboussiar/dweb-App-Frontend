@@ -18,9 +18,12 @@ import AppTheme from "../../shared-theme/AppTheme";
 import ForgotPassword from "../../admin-ui/components/ForgotPassword";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRoles } from "../../hooks/useRoles";
-import type { RootState } from "../../comp_management/store";
+import type { AppDispatch, RootState } from "../../features/store";
+import { extractRolesFromToken } from "../../utils/roleUtils";
+import { setCredentials } from "../../features/slices/authSlice";
+import { jwtDecode } from "jwt-decode";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -69,21 +72,28 @@ interface FormValues {
   password: string;
 }
 
+interface LoginResponse {
+  "access-token": string;
+  "refresh-token": string;
+}
+
 export default function SignIn(props: { disableCustomTheme?: boolean }) {
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
   const [open, setOpen] = React.useState(false);
-
+  const [isLoading,setIsLoading]=React.useState<boolean>(false);
+  
   const navigate = useNavigate();
-  const { username } = useSelector((state: RootState) => state.auth);
 
-  const { roles } = useRoles();
+ const dispatch=useDispatch<AppDispatch>();
+
   const validateInputs = () => {
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
     const username = document.getElementById("username") as HTMLInputElement;
+   
 
     let isValid = true;
 
@@ -120,32 +130,55 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
     setOpen(false);
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
 
-    if (emailError || passwordError) return;
+const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  setIsLoading(true);
 
-    const formData = new FormData(event.currentTarget);
-    const data: FormValues = {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-    };
-    try {
-      const response = await axios.post("http://localhost:9090/login", data, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
-      localStorage.setItem("access_token", response.data["access-token"]);
-      localStorage.setItem("refresh_token", response.data["refresh-token"]);
+  if (!validateInputs()) {
+    setIsLoading(false);
+    return;
+  }
 
-      console.log("user logged in:", data.email);
-      console.log("Updated username:", username);
-      console.log("Updated roles:", roles);
-      navigate("/", { replace: true });
-    } catch (error) {
-      console.log("Login Failed", error);
-      alert("Invalid username or password");
-    }
+  const formData = new FormData(event.currentTarget);
+  const data: FormValues = {
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
   };
+
+  try {
+    const response = await axios.post<LoginResponse>(
+      "http://localhost:9090/login", 
+      data, 
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
+    );
+
+    const { "access-token": accessToken, "refresh-token": refreshToken } = response.data;
+
+    
+    const roles:string[] = extractRolesFromToken(accessToken);
+
+    dispatch(setCredentials({ 
+      token: accessToken, 
+      refreshToken: refreshToken,
+    }));
+
+    // Store tokens in localStorage
+    localStorage.setItem("access_token", accessToken);
+    localStorage.setItem("refresh_token", refreshToken);
+
+    console.log("User logged in:", data.email);
+    console.log("User roles:", roles);
+    
+    navigate("/dashboard", { replace: true });
+  } catch (error: any) {
+    // Error handling...
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <AppTheme {...props}>

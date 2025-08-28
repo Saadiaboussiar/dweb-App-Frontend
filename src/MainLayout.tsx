@@ -32,7 +32,7 @@ const MainLayout = () => {
       <main className="content" style={{ borderLeft: "none", boxShadow: "none" }}>
         <Topbar />
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/interventions" element={<InterventionsCards />} />
           <Route path="/allInterventions" element={<InterventionHistory />} />
           <Route path="/clients" element={<ClientsInfos />}>

@@ -34,19 +34,18 @@ import PageContainer from "../PageContainer";
 import Header from "../../../global/components/Header";
 import { frFR } from "@mui/x-data-grid/locales";
 import { useSelector } from "react-redux";
-import { selectIsCollapsed } from "../../../comp_management/redux_slices/layoutSlice";
+import { selectIsCollapsed } from "../../../features/slices/layoutSlice";
 
 const INITIAL_PAGE_SIZE = 10;
 
 export default function ClientList() {
-
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const isCollapsed = useSelector(selectIsCollapsed);
   const dialogs = useDialogs();
   const notifications = useNotifications();
-  
+
   const [paginationModel, setPaginationModel] =
     React.useState<GridPaginationModel>({
       page: searchParams.get("page") ? Number(searchParams.get("page")) : 0,
@@ -229,7 +228,11 @@ export default function ClientList() {
         width: 100,
         type: "string",
       },
-      { field: "adresse", headerName: "Adresse", width: isCollapsed ?170 : 150 },
+      {
+        field: "adresse",
+        headerName: "Adresse",
+        width: isCollapsed ? 170 : 150,
+      },
 
       {
         field: "phoneNumber",
@@ -237,7 +240,7 @@ export default function ClientList() {
         width: isCollapsed ? 150 : 150,
         type: "string",
       },
-       {
+      {
         field: "email",
         headerName: "Email",
         width: isCollapsed ? 160 : 110,
@@ -296,7 +299,7 @@ export default function ClientList() {
         title={pageTitle}
         breadcrumbs={[{ title: pageTitle }]}
         actions={
-          <Stack direction="row" alignItems="center" spacing={1}  >
+          <Stack direction="row" alignItems="center" spacing={1}>
             <Tooltip
               title="Recharger les données"
               placement="right"
@@ -316,15 +319,13 @@ export default function ClientList() {
               variant="contained"
               onClick={handleCreateClick}
               startIcon={<AddIcon />}
-            
             >
-              Ajouter 
+              Ajouter
             </Button>
           </Stack>
         }
       >
-
-        <Box sx={{ flex: 1, width: isCollapsed ? "106%":"110%" }}>
+        <Box sx={{ flex: 1, width: isCollapsed ? "106%" : "110%" }}>
           {error ? (
             <Box sx={{ flexGrow: 1 }}>
               <Alert severity="error">{error.message}</Alert>

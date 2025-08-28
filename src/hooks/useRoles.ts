@@ -1,14 +1,23 @@
-import { useMemo } from "react";
-import type { RootState } from "../comp_management/store";
-import { useSelector } from "react-redux";
+// hooks/useRoles.ts
+import { useSelector } from 'react-redux';
+import type { RootState } from '../features/store';
 
-export const useRoles=()=>{
-    const { roles }=useSelector((state:RootState)=>state.auth)as { roles: string[] };
+export const useRoles = () => {
+  const roles = useSelector((state: RootState) => state.auth.roles);
+  
+  const hasRole = (role: string): boolean => {
+    return roles.includes(role);
+  };
 
-    return useMemo(() => ({
-        roles,
-        isAdmin: roles.includes('ADMIN'),
-        isUser: roles.includes('USER'),
-        hasRole: (role: string) => roles.includes(role)
-    }), [roles]);
+  const hasAnyRole = (requiredRoles: string[]): boolean => {
+    return requiredRoles.some(role => roles.includes(role));
+  };
+
+  return {
+    roles,
+    hasRole,
+    hasAnyRole,
+    isAdmin: hasRole('ADMIN'),
+    isUser: hasRole('USER'),
+  };
 };

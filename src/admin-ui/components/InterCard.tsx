@@ -3,24 +3,18 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { tokens } from "../../shared-theme/theme";
 import { Link } from "react-router-dom";
+import type {InterventionCard} from '../../data/interventions'
 
-type CardProps = {
-  technicianName: string;
-  clientName: string;
-  adresse: string;
-  heure: string;
-  date: string;
-  interId: number;
-};
+
 
 const InterCard = ({
   date,
-  technicianName,
-  clientName,
-  adresse,
-  heure,
+  technicianFullName,
+  client,
+  ville,
+  submittedAt,
   interId,
-}: CardProps) => {
+}: InterventionCard) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -45,15 +39,15 @@ const InterCard = ({
             component="div"
             sx={{ fontWeight: "bold", color: colors.grey[100] }}
           >
-            {technicianName}
+            {technicianFullName}
           </Typography>
 
           <Typography variant="h5" sx={{ color: colors.grey[300], mb: 1.5 }}>
-            Client : {clientName}
+            Client : {client}
           </Typography>
 
           <Typography variant="h6" sx={{ color: colors.primary[100] }}>
-            Adresse : {adresse}
+            Adresse : {ville}
           </Typography>
 
           <Typography variant="h6" sx={{ color: colors.primary[100] }}>
@@ -61,7 +55,7 @@ const InterCard = ({
           </Typography>
 
           <Typography variant="h6" sx={{ color: colors.primary[100] }}>
-            Heure : {heure}
+            Heure : {submittedAt}
           </Typography>
         </CardContent>
 

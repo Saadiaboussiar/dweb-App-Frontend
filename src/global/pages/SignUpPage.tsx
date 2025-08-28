@@ -14,25 +14,10 @@ import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
 import AppTheme from "../../shared-theme/AppTheme";
-import {
-  GoogleIcon,
-  FacebookIcon,
-} from "../../admin-ui/components/CustomIcons";
+
 import ColorModeSelect from "../../shared-theme/ColorModeSelect";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import {
-  selectRoles,
-  selectUsername,
-  setError,
-  setIsLoading,
-  setRoles,
-  setUsername,
-} from "../../comp_management/redux_slices/authSlice";
-import { store, type RootState } from "../../comp_management/store";
-import { useRoles } from "../../hooks/useRoles";
-import { useEffect } from "react";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -90,6 +75,7 @@ interface ApiResponse {
 }
 
 export default function SignUp(props: { disableCustomTheme?: boolean }) {
+  
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
@@ -98,10 +84,6 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
   const [nameErrorMessage, setNameErrorMessage] = React.useState("");
 
   const navigate = useNavigate();
-
-  const username = useSelector(selectUsername);
-  const roles = useSelector(selectRoles);
-
   const validateInputs = () => {
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
@@ -143,15 +125,9 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
     return isValid;
   };
 
-  const dispatch = useDispatch();
-  useEffect(() => {
-    console.log("Latest roles:", roles);
-    console.log("Latest username:", username);
-  }, [roles, username]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    dispatch(setIsLoading(true));
     // Client-side validation
     if (nameError || emailError || passwordError) return;
 
@@ -175,33 +151,20 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         }
       );
 
-      console.log("User roles:", response.data.roles);
-      console.log("usernmae: ", response.data.username);
-      dispatch(setRoles(response.data.roles));
-      dispatch(setUsername(response.data.username));
-
-      console.log("roles after dispatch: ", roles);
-      console.log("username after dispatch: ", username);
-      console.log("Full auth state structure:", store.getState());
-      console.log("Full auth state structure:", store.getState().auth.username);
-      console.log("Full auth state structure:", store.getState().auth.roles);
-
-      navigate("/signin", { replace: true });
+      navigate("/", { replace: true });
     } catch (error: any) {
       if (error.response) {
-        dispatch(
-          setError(error.response?.data?.message || "Authentication failed")
-        );
+        
         console.log("Full error object:", error);
       } else {
         alert("Problème de connexion au serveur");
       }
-    } finally {
-      dispatch(setIsLoading(false));
-    }
-  };
+   
+  }
+};
 
   return (
+
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
       <ColorModeSelect sx={{ position: "fixed", top: "1rem", right: "1rem" }} />
@@ -284,7 +247,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Typography sx={{ textAlign: "center" }}>
               Vous avez déjà un compte?{" "}
-              <Link href="/signin" variant="body2" sx={{ alignSelf: "center" }}>
+              <Link href="/" variant="body2" sx={{ alignSelf: "center" }}>
                 Se connecter
               </Link>
             </Typography>
@@ -293,4 +256,4 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
       </SignUpContainer>
     </AppTheme>
   );
-}
+ }

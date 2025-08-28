@@ -1,12 +1,34 @@
 import Box from "@mui/material/Box";
 import Header from "../../../global/components/Header";
 import InterCard from "../../components/InterCard";
-import { cards } from "../../../data/cardsList";
-import { selectIsCollapsed } from "../../../comp_management/redux_slices/layoutSlice";
+import { type InterventionCard, getAllInterventionsCards } from "../../../data/interventions";
+import { selectIsCollapsed } from "../../../features/slices/layoutSlice";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 const InterventionsCards = () => {
   const isCollapsed = useSelector(selectIsCollapsed);
+
+  const [cards, setCards] = useState<InterventionCard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+      const fetchInterventions = async () => {
+        try {
+          setLoading(true);
+          const data = await getAllInterventionsCards();
+          setCards(data);
+        } catch (err) {
+          setError("Failed to load interventions");
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchInterventions();
+    }, []);
+
   return (
     <Box m="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -36,10 +58,10 @@ const InterventionsCards = () => {
           >
             <InterCard
               interId={item.interId}
-              technicianName={item.technicianName}
-              clientName={item.clientName}
-              adresse={item.adresse}
-              heure={item.heure}
+              technicianFullName={item.technicianFullName}
+              client={item.client}
+              ville={item.ville}
+              submittedAt={item.submittedAt}
               date={item.date}
             />
           </Box>

@@ -18,15 +18,15 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { type Intervention, getInterventions } from "../../data/interventions";
+import { type Intervention, getInterventionsByTechnician } from "../../data/interventions";
 import { visuallyHidden } from "@mui/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ImageIcon from "@mui/icons-material/Image";
 import { tokens } from "../../shared-theme/theme";
 import { useSelector } from "react-redux";
-import { selectIsCollapsed } from "../../comp_management/redux_slices/layoutSlice";
+import { selectIsCollapsed } from "../../features/slices/layoutSlice";
 import { useRoles } from "../../hooks/useRoles";
-import { selectTechnicianId } from "../../comp_management/redux_slices/technicianAuthSlice";
+import { selectTechnicianId } from "../../features/slices/technicianAuthSlice";
 
 type Order = "asc" | "desc";
 
@@ -155,7 +155,7 @@ const InterventionList = () => {
     const fetchInterventions = async () => {
       try {
         setLoading(true);
-        const data = await getInterventions(technicianId);
+        const data = await getInterventionsByTechnician(technicianId);
         setInterventions(data);
       } catch (err) {
         setError("Failed to load interventions");

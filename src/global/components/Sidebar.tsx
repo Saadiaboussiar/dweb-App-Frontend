@@ -24,13 +24,10 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectIsCollapsed,
   toogleSidebar,
-} from "../../comp_management/redux_slices/layoutSlice";
-import type { RootState } from "comp_management/store";
+} from "../../features/slices/layoutSlice";
+import type { RootState } from "features/store";
 import { useRoles } from "../../hooks/useRoles";
-import {
-  selectUsername,
-  selectRoles,
-} from "../../comp_management/redux_slices/authSlice";
+import { selectRoles, selectUser } from "../../features/slices/authSlice";
 const BigTooltip = styled(
   ({ className, ...props }: TooltipProps & { className?: string }) => (
     <Tooltip {...props} classes={{ popper: className }} />
@@ -89,14 +86,13 @@ const Sidebar = () => {
   const [selected, setSelected] = useState("Tableau de bord");
   console.log("isCollapsed: ", isCollapsed);
 
-  const username = useSelector(selectUsername);
+  const user = useSelector(selectUser);
   const roles = useSelector(selectRoles);
 
-  console.log("roles:", roles);
-  console.log("username:", username);
-
+console.log("roles: ",roles);
+console.log("user: ",user);
   const { isAdmin } = useRoles();
-
+  
   return (
     <Box
       sx={{
@@ -202,14 +198,14 @@ const Sidebar = () => {
               </Box>
               <Box textAlign="center">
                 <Typography
-                  variant="h2"
+                  variant="h5"
                   color={colors.grey[100]}
-                  fontWeight="bold"
+                  fontWeight="350"
                   sx={{ mt: "10px" }}
                 >
-                  {username}
+                  {user?.sub}
                 </Typography>
-                <Typography variant="h5" color={colors.greenAccent[500]}>
+                <Typography variant="h5" color={colors.greenAccent[500]} sx={{mt:"5px"}}>
                   {isAdmin ? "Espace Administrateur" : "Espace Technicien "}
                 </Typography>
               </Box>
@@ -224,7 +220,7 @@ const Sidebar = () => {
                   icon={<HomeOutlinedIcon />}
                   selected={selected}
                   setSelected={setSelected}
-                  to="/"
+                  to="/dashboard"
                   isCollapsed={isCollapsed}
                 />
                 <Typography
@@ -337,7 +333,6 @@ const Sidebar = () => {
                     mt: isCollapsed ? "40px" : "0px",
                   }}
                 >
-
                   <Item
                     title="Tableau De Bord"
                     icon={<HomeOutlinedIcon />}

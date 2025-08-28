@@ -16,8 +16,15 @@ export type Intervention = {
   interUrl:string | null
 };
 
-
-export const getInterventions=async (technicianId:number):Promise<Intervention[]>=>{
+export type InterventionCard={
+  client: string;          
+  ville: string;
+  technicianFullName:string,
+  date:string,
+  submittedAt:string;
+  interId: number;
+}
+export const getInterventionsByTechnician=async (technicianId:number):Promise<Intervention[]>=>{
 
   try{
     const response= await api.get(`/bonIntervention/Technician/${technicianId}`);
@@ -28,4 +35,30 @@ export const getInterventions=async (technicianId:number):Promise<Intervention[]
       return [];
   }
 }
+
+
+export const getAllInterventionsCards=async ():Promise<InterventionCard[]>=>{
+
+  try{
+    const response= await api.get('/intervention/interventionsDetails');
+    return Array.isArray(response.data) ? response.data : [];
+
+  }catch(error){
+      console.error("failed to fetch interventions: ", error);
+      return [];
+  }
+}
+
+export const getAllInterventions=async ():Promise<Intervention[]>=>{
+
+  try{
+    const response= await api.get('/intervention');
+    return Array.isArray(response.data) ? response.data : [];
+
+  }catch(error){
+      console.error("failed to fetch interventions: ", error);
+      return [];
+  }
+}
+
 

@@ -35,7 +35,7 @@ import type { technicianData } from "data/technicians";
 import Header from "../../../global/components/Header";
 import { frFR } from "@mui/x-data-grid/locales";
 import { useSelector } from "react-redux";
-import { selectIsCollapsed } from "../../../comp_management/redux_slices/layoutSlice";
+import { selectIsCollapsed } from "../../../features/slices/layoutSlice";
 
 const INITIAL_PAGE_SIZE = 10;
 

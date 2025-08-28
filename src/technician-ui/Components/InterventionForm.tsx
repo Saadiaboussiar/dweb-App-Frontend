@@ -12,8 +12,9 @@ import { useRef, useState } from "react";
 import { Avatar, Card, IconButton, Typography, useTheme } from "@mui/material";
 import { CameraAlt, CloudUpload, Delete } from "@mui/icons-material";
 import { useSelector } from "react-redux";
-import { selectIsCollapsed } from "../../comp_management/redux_slices/layoutSlice";
+import { selectIsCollapsed } from "../../features/slices/layoutSlice";
 import { tokens } from "../../shared-theme/theme";
+import useNotifications from "../../hooks/useNotifications/useNotifications";
 
 export interface InterventionFormProps {
   client: string; // client name (or CIN if you prefer)
@@ -42,7 +43,7 @@ export default function InterventionForm() {
   const isCollapsed = useSelector(selectIsCollapsed);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
+  const notifications = useNotifications();
   const [formData, setFormData] = React.useState<InterventionFormProps>({
     client: "",
     ville: "",
@@ -150,25 +151,36 @@ export default function InterventionForm() {
     try {
       const response = await api.post("/bonIntervention", formPayload);
 
-      alert("Intervention successfully submitted!");
-      console.log("Server response:", response.data);
+      if (response !== null && response !== undefined && typeof response.data==='number') {
+        notifications.show("Intervention enregistré avec sucées.", {
+          severity: "success",
+          autoHideDuration: 3000,
+        });
 
-      // 5. Clean up preview URL
-      if (file.photoPreview) {
+        if (file.photoPreview) {
         URL.revokeObjectURL(file.photoPreview);
       }
       setFormData(initialFormState);
       setFile({ bonImage: null, photoPreview: "" });
-    } catch (error) {
+    
+      } else {
+        notifications.show(
+          "Intervention est bien enregistré, mais réponse inattendue du serveur.",
+          {
+            severity: "warning",
+            autoHideDuration: 3000,
+          }
+        );
+      }
+
+      } catch (error) {
       if (axios.isAxiosError(error)) {
         const serverMessage = error.response?.data?.message;
         const statusCode = error.response?.status;
         console.error(`Request failed with ${statusCode}:`, serverMessage);
         alert(serverMessage || `Server error (${statusCode})`);
-      } else if (error instanceof Error) {
-        console.error("Network/request error:", error.message);
-        alert(error.message);
-      } else {
+      }
+      {
         console.error("Unexpected error:", error);
         alert("Technical error occurred");
       }
@@ -287,7 +299,7 @@ export default function InterventionForm() {
               fullWidth
             />
           </Grid>
-          
+
           <Grid size={{ xs: 8, sm: 6 }} sx={{ display: "flex" }}>
             <TextField
               type="text"

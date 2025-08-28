@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import { useParams } from "react-router-dom";
 import TechnicianCard from "../components/TechnicianCard";
-import { getInterventions, type Intervention } from "../../data/interventions";
+import { getAllInterventions, type Intervention } from "../../data/interventions";
 import { technicians } from "../../data/technicians";
 import VoucherPhoto from "../components/VoucherPhoto";
 import InterventionInfos from "../components/InterventionInfos";
@@ -20,7 +20,7 @@ const InterventionDetails = () => {
     const fetchInterventions = async () => {
       try {
         setLoading(true);
-        const data = await getInterventions();
+        const data = await getAllInterventions();
         setInterventions(data);
       } catch (err) {
         setError("Failed to load interventions");
