@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -18,7 +18,12 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { type Intervention, getInterventionsByTechnician } from "../../data/interventions";
+import {
+  type Intervention,
+  type InterventionCard,
+  getAllInterventionsCards,
+  getInterventionsByTechnician,
+} from "../../data/interventions";
 import { visuallyHidden } from "@mui/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ImageIcon from "@mui/icons-material/Image";
@@ -27,17 +32,26 @@ import { useSelector } from "react-redux";
 import { selectIsCollapsed } from "../../features/slices/layoutSlice";
 import { useRoles } from "../../hooks/useRoles";
 import { selectTechnicianId } from "../../features/slices/technicianAuthSlice";
+import { useNavigate } from "react-router-dom";
+import type { GridEventListener } from "@mui/x-data-grid";
 
 type Order = "asc" | "desc";
 
-interface HeadCell {
-  id: keyof Intervention | "technician" | "photo";
+interface HeadCellTech {
+  id: keyof Intervention | "photo";
   label: string;
   filterable?: boolean;
   numeric?: boolean;
 }
 
-const baseHeadCells: readonly HeadCell[] = [
+interface HeadCellAdmin {
+  id: keyof InterventionCard;
+  label: string;
+  filterable?: boolean;
+  numeric?: boolean;
+}
+
+const baseHeadCellsTech: readonly HeadCellTech[] = [
   { id: "interId", label: "ID", filterable: true, numeric: true },
   { id: "client", label: "Client", filterable: true },
   { id: "ville", label: "Ville", filterable: true },
@@ -49,30 +63,36 @@ const baseHeadCells: readonly HeadCell[] = [
   { id: "photo", label: "Photo" },
 ] as const;
 
-const adminHeadCells: readonly HeadCell[] = [
-  { id: "technician", label: "Technicien", filterable: true },
-] as const;
+const baseHeadCellsAdmin: readonly HeadCellAdmin[] = [
+  { id: "interId", label: "ID", filterable: true, numeric: true },
+  { id: "client", label: "Client", filterable: true },
+  { id: "technicianFullName", label: "Technicien", filterable: true },
+  { id: "date", label: "Date", filterable: true },
+  { id: "submittedAt", label: "Enregistré le", filterable: true },
+];
 
 interface EnhancedTableProps {
-  onRequestSort: (property: keyof Intervention | "technician") => void;
+  onRequestSort: (
+    property: keyof Intervention | keyof InterventionCard
+  ) => void;
   order: Order;
   orderBy: string;
   filters: Record<string, string>;
   onFilterChange: (id: string, value: string) => void;
+  isAdmin: boolean;
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
-  const { order, orderBy, onRequestSort, filters, onFilterChange } = props;
-  const { isAdmin } = useRoles();
+  const { order, orderBy, onRequestSort, filters, onFilterChange, isAdmin } =
+    props;
+
   const createSortHandler =
-    (property: keyof Intervention | "technician") => () => {
+    (property: keyof Intervention | keyof InterventionCard) => () => {
       onRequestSort(property);
     };
 
-  const headCells = React.useMemo(
-    () => [...baseHeadCells, ...(isAdmin ? adminHeadCells : [])],
-    [isAdmin]
-  );
+  const headCells = isAdmin ? baseHeadCellsAdmin : baseHeadCellsTech;
+
   return (
     <TableHead>
       <TableRow>
@@ -130,9 +150,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 const InterventionList = () => {
   const [order, setOrder] = useState<Order>("asc");
-  const [orderBy, setOrderBy] = useState<keyof Intervention | "technician">(
-    "interId"
-  );
+  const [orderBy, setOrderBy] = useState<string>("interId");
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [openImageDialog, setOpenImageDialog] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -143,20 +161,42 @@ const InterventionList = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const [interventions, setInterventions] = useState<Intervention[]>([]);
+  const [adminInterventions, setAdminInterventions] = useState<
+    InterventionCard[]
+  >([]);
+  const [techInterventions, setTechInterventions] = useState<Intervention[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const technicianId = useSelector(selectTechnicianId);
+  const navigate = useNavigate();
 
-  console.log("technician id : ", technicianId);
+  const handleRowClick = useCallback(
+    (intervention: InterventionCard) => {
+      console.log("Row clicked:", intervention);
+      
+      navigate(`/allInterventions/${intervention.interId}`, {
+
+        state: { intervention }, 
+      });
+
+    },
+    [navigate]
+  );
 
   useEffect(() => {
     const fetchInterventions = async () => {
       try {
         setLoading(true);
-        const data = await getInterventionsByTechnician(technicianId);
-        setInterventions(data);
+        if (isAdmin) {
+          const data = await getAllInterventionsCards();
+          setAdminInterventions(data);
+        } else {
+          const data = await getInterventionsByTechnician(technicianId);
+          setTechInterventions(data);
+        }
       } catch (err) {
         setError("Failed to load interventions");
         console.error(err);
@@ -165,7 +205,7 @@ const InterventionList = () => {
       }
     };
     fetchInterventions();
-  }, []);
+  }, [isAdmin, technicianId]);
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "Non spécifiée";
@@ -179,11 +219,7 @@ const InterventionList = () => {
     }
   };
 
-  const formatTechnician = (techFN?: string, techLN?: string) => {
-    return [techFN, techLN].filter(Boolean).join(" ") || "Non spécifiée";
-  };
-
-  const handleRequestSort = (property: keyof Intervention | "technician") => {
+  const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
@@ -215,41 +251,49 @@ const InterventionList = () => {
 
     return hours * 60 + minutes;
   };
-  const filteredAndSortedInterventions = (interventions || [])
+
+  // Filtering logic for different user roles
+  const filteredAndSortedInterventions = (
+    isAdmin ? adminInterventions : techInterventions
+  )
     .filter((inter) => {
       return Object.entries(filters).every(([key, value]) => {
         if (!value) return true;
-
         const filterValue = value.toLowerCase();
 
-        if (key === "technician") {
-          const technicianName = formatTechnician(
-            inter.technicianFN,
-            inter.technicianLN
-          ).toLowerCase();
-          return technicianName.includes(filterValue);
+        let cellValue;
+
+        if (isAdmin) {
+          const adminInter = inter as InterventionCard;
+          cellValue = adminInter[key as keyof InterventionCard];
+        } else {
+          const techInter = inter as Intervention;
+          cellValue = techInter[key as keyof Intervention];
         }
 
-        const cellValue = inter[key as keyof Intervention];
         if (cellValue === null || cellValue === undefined) return false;
-
         return String(cellValue).toLowerCase().includes(filterValue);
       });
     })
     .sort((a, b) => {
       let aValue, bValue;
 
-      if (orderBy === "technician") {
-        aValue = formatTechnician(a.technicianFN, a.technicianLN);
-        bValue = formatTechnician(b.technicianFN, b.technicianLN);
-      }
-      // Special handling for duration
-      else if (orderBy === "duration") {
-        aValue = parseDurationToMinutes(a.duration);
-        bValue = parseDurationToMinutes(b.duration);
+      if (isAdmin) {
+        const adminA = a as InterventionCard;
+        const adminB = b as InterventionCard;
+        aValue = adminA[orderBy as keyof InterventionCard];
+        bValue = adminB[orderBy as keyof InterventionCard];
       } else {
-        aValue = a[orderBy as keyof Intervention];
-        bValue = b[orderBy as keyof Intervention];
+        const techA = a as Intervention;
+        const techB = b as Intervention;
+
+        if (orderBy === "duration") {
+          aValue = parseDurationToMinutes(techA.duration);
+          bValue = parseDurationToMinutes(techB.duration);
+        } else {
+          aValue = techA[orderBy as keyof Intervention];
+          bValue = techB[orderBy as keyof Intervention];
+        }
       }
 
       if (aValue === null || aValue === undefined)
@@ -268,6 +312,14 @@ const InterventionList = () => {
         ? stringA.localeCompare(stringB)
         : stringB.localeCompare(stringA);
     });
+
+  if (loading) {
+    return <div>Loading interventions...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <Box
@@ -299,39 +351,61 @@ const InterventionList = () => {
               onRequestSort={handleRequestSort}
               filters={filters}
               onFilterChange={handleFilterChange}
+              isAdmin={isAdmin}
             />
             <TableBody>
               {filteredAndSortedInterventions.map((inter) => (
                 <TableRow
                   hover
                   key={inter.interId}
+                  onClick={() => handleRowClick(inter as InterventionCard)}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  <TableCell align="right">{inter.interId}</TableCell>
-                  <TableCell>{inter.client}</TableCell>
-                  <TableCell>{inter.ville}</TableCell>
-                  <TableCell align="right">{inter.km}</TableCell>
-                  {isAdmin && (
-                    <TableCell>
-                      {formatTechnician(inter.technicianFN, inter.technicianLN)}
-                    </TableCell>
+                  {isAdmin ? (
+                    // Admin view
+                    <>
+                      <TableCell align="right">{inter.interId}</TableCell>
+                      <TableCell>{inter.client}</TableCell>
+                      <TableCell>
+                        {(inter as InterventionCard).technicianFullName}
+                      </TableCell>
+                      <TableCell>{inter.date}</TableCell>
+                      <TableCell>
+                        {inter.submittedAt}
+                      </TableCell>
+                    </>
+                  ) : (
+                    // Technician view
+                    <>
+                      <TableCell align="right">{inter.interId}</TableCell>
+                      <TableCell>{inter.client}</TableCell>
+                      <TableCell>{inter.ville}</TableCell>
+                      <TableCell align="right">
+                        {(inter as Intervention).km}
+                      </TableCell>
+                      <TableCell>{formatDate(inter.date)}</TableCell>
+                      <TableCell>{(inter as Intervention).startTime}</TableCell>
+                      <TableCell>
+                        {(inter as Intervention).finishTime}
+                      </TableCell>
+                      <TableCell>{(inter as Intervention).duration}</TableCell>
+                      <TableCell>
+                        {(inter as Intervention).interUrl && (
+                          <IconButton
+                            onClick={() =>
+                              handleOpenImageDialog(
+                                (inter as Intervention).interUrl
+                              )
+                            }
+                            color="primary"
+                            aria-label="view photo"
+                          >
+                            <ImageIcon />
+                          </IconButton>
+                        )}
+                      </TableCell>
+                    </>
                   )}
-
-                  <TableCell>{formatDate(inter.date)}</TableCell>
-                  <TableCell>{inter.startTime}</TableCell>
-                  <TableCell>{inter.finishTime}</TableCell>
-                  <TableCell>{inter.duration}</TableCell>
-                  <TableCell>
-                    {inter.interUrl && (
-                      <IconButton
-                        onClick={() => handleOpenImageDialog(inter.interUrl)}
-                        color="primary"
-                        aria-label="view photo"
-                      >
-                        <ImageIcon />
-                      </IconButton>
-                    )}
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -89,7 +89,7 @@ function formatLabel(key: string) {
     finishTime: "Heure fin",
     duration: "Durée",
     nbreIntervenant: "Nombre d'intervenants",
-    submittedAt: "Validé le",
+    submittedAt: "Enregistré le",
   };
   return map[key] || key;
 }

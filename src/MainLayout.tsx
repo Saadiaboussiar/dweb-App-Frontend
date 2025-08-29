@@ -23,6 +23,7 @@ import NewIntervention from "./technician-ui/pages/NewIntervention";
 import TechDashboard from "./technician-ui/pages/Dashboard";
 import TechInterventions from "./technician-ui/pages/TechInterventions";
 import TechPoints from "./technician-ui/pages/TechPoints";
+import InterventionShow from "./admin-ui/components/InterventionShow";
 
 // Create a new layout component for pages with sidebar and topbar
 const MainLayout = () => {
@@ -34,7 +35,10 @@ const MainLayout = () => {
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/interventions" element={<InterventionsCards />} />
-          <Route path="/allInterventions" element={<InterventionHistory />} />
+          <Route path="/allInterventions" element={<InterventionHistory />} /> 
+          <Route path="/allInterventions/:interventionId" element={<InterventionShow />} />
+          
+
           <Route path="/clients" element={<ClientsInfos />}>
             <Route index element={<ClientList />} />
             <Route path=":clientCin" element={<ClientShow />} />

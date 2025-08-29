@@ -24,6 +24,8 @@ export type InterventionCard={
   submittedAt:string;
   interId: number;
 }
+
+
 export const getInterventionsByTechnician=async (technicianId:number):Promise<Intervention[]>=>{
 
   try{
@@ -53,6 +55,7 @@ export const getAllInterventions=async ():Promise<Intervention[]>=>{
 
   try{
     const response= await api.get('/intervention');
+
     return Array.isArray(response.data) ? response.data : [];
 
   }catch(error){
@@ -62,3 +65,22 @@ export const getAllInterventions=async ():Promise<Intervention[]>=>{
 }
 
 
+export async function getOneIntervention(id: number) {
+  const intervention = (await getAllInterventions()).find((t) => t.interId === id);
+  if (!intervention) throw new Error("Intervention not found");
+  return intervention;
+}
+
+
+
+export async function deleteIntervention(interventionId: number) {
+  try{
+    const response=await api.delete(`/intervention/${interventionId}`);
+    return response.data;
+  }catch(error){
+    if (typeof window !== 'undefined') {
+      window.console.error('Failed to delete technician', error);
+    }    
+    throw error; 
+  }
+}
