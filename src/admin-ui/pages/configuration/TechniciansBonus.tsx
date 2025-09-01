@@ -10,6 +10,7 @@ const TechniciansBonus = () => {
           subTitle="Découvrez tous les avantages et récompenses pour nos techniciens"
         />
       </Box>
+      
     </Box>
   );
 };

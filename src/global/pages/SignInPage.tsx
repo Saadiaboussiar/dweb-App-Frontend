@@ -24,6 +24,7 @@ import type { AppDispatch, RootState } from "../../features/store";
 import { extractRolesFromToken } from "../../utils/roleUtils";
 import { setCredentials } from "../../features/slices/authSlice";
 import { jwtDecode } from "jwt-decode";
+import { authService } from "../../service/authService";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -166,8 +167,8 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     }));
 
     // Store tokens in localStorage
-    localStorage.setItem("access_token", accessToken);
-    localStorage.setItem("refresh_token", refreshToken);
+    
+    authService.setTokens(accessToken,refreshToken);
 
     console.log("User logged in:", data.email);
     console.log("User roles:", roles);

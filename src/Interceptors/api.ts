@@ -1,5 +1,6 @@
 import { config } from "@fortawesome/fontawesome-svg-core";
 import axios from "axios";
+import { authService } from "../service/authService";
 
 const api=axios.create({
     baseURL:'http://localhost:9090/'
@@ -10,7 +11,7 @@ console.log("axios ")
 api.interceptors.request.use(
     (config)=>{
 
-        const token=localStorage.getItem('access_token');
+        const token=sessionStorage.getItem('access_token');
        
         if(token){
             config.headers.Authorization=`Bearer ${token}`;
@@ -32,7 +33,7 @@ api.interceptors.response.use(
             try{
                 console.log("Attempting token refresh...")
 
-                const refreshToken=localStorage.getItem('refresh_token');
+                const refreshToken=sessionStorage.getItem('refresh_token');
                 if(!refreshToken){
                     console.error("No refresh token found");
                     throw new Error("No refresh token available");
@@ -54,12 +55,9 @@ api.interceptors.response.use(
                     'refresh-token': newRefreshToken
                 } = response.data;
 
-                localStorage.setItem('access_token',newAccessToken);
-
-                if (newRefreshToken) {
-                    localStorage.setItem('refresh_token', newRefreshToken);
-                }
-
+                
+                authService.setTokens(newAccessToken,newRefreshToken);
+                
                 originalRequest.headers.Authorization=`Bearer ${newAccessToken}`
 
 
@@ -68,11 +66,14 @@ api.interceptors.response.use(
             }catch(refreshError){
                 console.error("Token refresh failed:", refreshError);
                 
-                // Clear tokens and redirect to login on refresh failure
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
-                window.location.href = '/';
-                
+                const currentPath = window.location.pathname;
+                const isPublicRoute = ['/', '/login', '/register'].includes(currentPath);
+
+                if (!isPublicRoute) {
+                    authService.removeTokens();
+                    window.location.href = '/login';
+                }
+
                 return Promise.reject(refreshError);
             }
         }

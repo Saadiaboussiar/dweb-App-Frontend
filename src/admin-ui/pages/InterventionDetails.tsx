@@ -1,19 +1,32 @@
 import Box from "@mui/material/Box";
 import { useParams } from "react-router-dom";
 import TechnicianCard from "../components/TechnicianCard";
-import { getAllInterventions, type Intervention } from "../../data/interventions";
-import { getTechniciansStore, type TechnicianData } from "../../data/technicianInfos";
+import {
+  getAllInterventions,
+  validateIntervetion,
+  type Intervention,
+} from "../../data/interventions";
+import {
+  getTechniciansStore,
+  type TechnicianData,
+} from "../../data/technicianInfos";
 import VoucherPhoto from "../components/VoucherPhoto";
 import InterventionInfos from "../components/InterventionInfos";
 import { useEffect, useState } from "react";
+import { Button, Typography, useTheme } from "@mui/material";
+import { tokens } from "../../shared-theme/theme";
+import useNotifications from "../../hooks/useNotifications/useNotifications";
 
 const InterventionDetails = () => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+
   const { interId } = useParams();
   console.log("the id of clicked intervention: ", interId);
   const interventionId = Number(interId);
 
   const [interventions, setInterventions] = useState<Intervention[]>([]);
-  const [technicians,setTechnicians]=useState<TechnicianData[]>([]);
+  const [technicians, setTechnicians] = useState<TechnicianData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -29,24 +42,23 @@ const InterventionDetails = () => {
         setLoading(false);
       }
     };
-    const fetchTechnicians=async ()=>{
-      try{
+    const fetchTechnicians = async () => {
+      try {
         setLoading(true);
-        const data=await getTechniciansStore();
+        const data = await getTechniciansStore();
         setTechnicians(data);
-      }catch(err){
+      } catch (err) {
         setError("Failed to load interventions");
         console.error(err);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchInterventions();
     fetchTechnicians();
-
   }, []);
-  console.log("Intervention: ", interventions)
+  console.log("Intervention: ", interventions);
 
   const intervention = interventions.find(
     (inter) => inter.interId === interventionId
@@ -57,6 +69,36 @@ const InterventionDetails = () => {
   const technician = technicians.find(
     (tech) => tech.firstName === techFN && tech.lastName === techLN
   );
+
+  const notifications = useNotifications();
+
+  const handleValidation = async (
+    interId: number | undefined,
+    isValid: boolean
+  ) => {
+    if (interId != undefined) {
+      const response = await validateIntervetion(interId, isValid);
+      console.log(response.data);
+
+      if (response != null && response != undefined) {
+        notifications.show("Action est validé.", {
+          severity: "success",
+          autoHideDuration: 3000,
+        });
+      } else {
+        notifications.show(
+          "Action n'est pas validé.",
+          {
+            severity: "warning",
+            autoHideDuration: 3000,
+          }
+        );
+      }
+    } else {
+      alert("l'intervention n'est pas difiner");
+    }
+  };
+
   return (
     <Box
       display="flex"
@@ -86,6 +128,54 @@ const InterventionDetails = () => {
       </Box>
       <Box>
         <InterventionInfos intervention={intervention ?? undefined} />
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: "200px",
+          alignItems: "center",
+          justifyContent: "center",
+          mt: "40px",
+          mb: "30px",
+        }}
+      >
+        <Button
+          sx={{
+            bgcolor: colors.greenAccent[600],
+            width: "200px",
+            height: "40px",
+            "&:hover": {
+              bgcolor: colors.greenAccent[700],
+            },
+          }}
+          onClick={() => handleValidation(intervention?.interId, true)}
+        >
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: "bold", color: "#ddd2d2ff" }}
+          >
+            Valider
+          </Typography>
+        </Button>
+        <Button
+          sx={{
+            bgcolor: colors.redAccent[600],
+            width: "200px",
+            height: "40px",
+            "&:hover": {
+              bgcolor: colors.redAccent[700],
+            },
+          }}
+          onClick={() => handleValidation(intervention?.interId, false)}
+        >
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: "bold", color: "#e7dedeff" }}
+          >
+            Rejeter
+          </Typography>
+        </Button>
       </Box>
     </Box>
   );

@@ -14,6 +14,7 @@ const App: React.FC = () => {
         <CssBaseline />
         <Routes>
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<SignIn />} />
           <Route path="/" element={<SignIn />} />
           <Route path="/*" element={<MainLayout />} />
         </Routes>

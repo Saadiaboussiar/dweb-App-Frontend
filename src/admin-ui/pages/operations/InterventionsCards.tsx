@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import Header from "../../../global/components/Header";
 import InterCard from "../../components/InterCard";
-import { type InterventionCard, getAllInterventionsCards } from "../../../data/interventions";
+import { type InterventionEssentials, getAllInterventionsCards } from "../../../data/interventions";
 import { selectIsCollapsed } from "../../../features/slices/layoutSlice";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 const InterventionsCards = () => {
   const isCollapsed = useSelector(selectIsCollapsed);
 
-  const [cards, setCards] = useState<InterventionCard[]>([]);
+  const [cards, setCards] = useState<InterventionEssentials[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -63,6 +63,7 @@ const InterventionsCards = () => {
               ville={item.ville}
               submittedAt={item.submittedAt}
               date={item.date}
+              status={item.status}
             />
           </Box>
         ))}

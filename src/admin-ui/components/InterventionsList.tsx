@@ -20,8 +20,9 @@ import {
 } from "@mui/material";
 import {
   type Intervention,
-  type InterventionCard,
+  type InterventionEssentials,
   getAllInterventionsCards,
+  getFrenchName,
   getInterventionsByTechnician,
 } from "../../data/interventions";
 import { visuallyHidden } from "@mui/utils";
@@ -45,7 +46,7 @@ interface HeadCellTech {
 }
 
 interface HeadCellAdmin {
-  id: keyof InterventionCard;
+  id: keyof InterventionEssentials;
   label: string;
   filterable?: boolean;
   numeric?: boolean;
@@ -69,11 +70,12 @@ const baseHeadCellsAdmin: readonly HeadCellAdmin[] = [
   { id: "technicianFullName", label: "Technicien", filterable: true },
   { id: "date", label: "Date", filterable: true },
   { id: "submittedAt", label: "Enregistré le", filterable: true },
+  { id: "status", label: "Status", filterable: true },
 ];
 
 interface EnhancedTableProps {
   onRequestSort: (
-    property: keyof Intervention | keyof InterventionCard
+    property: keyof Intervention | keyof InterventionEssentials
   ) => void;
   order: Order;
   orderBy: string;
@@ -87,7 +89,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     props;
 
   const createSortHandler =
-    (property: keyof Intervention | keyof InterventionCard) => () => {
+    (property: keyof Intervention | keyof InterventionEssentials) => () => {
       onRequestSort(property);
     };
 
@@ -148,6 +150,21 @@ function EnhancedTableHead(props: EnhancedTableProps) {
   );
 }
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "PENDING":
+      return "#eeeebfff";
+    case "VALIDATED":
+      return "#70d8bd";
+    case "REJECTED":
+      return "#e2726e";
+    default:
+      return "black";
+  }
+};
+
+
+
 const InterventionList = () => {
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<string>("interId");
@@ -162,7 +179,7 @@ const InterventionList = () => {
   const colors = tokens(theme.palette.mode);
 
   const [adminInterventions, setAdminInterventions] = useState<
-    InterventionCard[]
+    InterventionEssentials[]
   >([]);
   const [techInterventions, setTechInterventions] = useState<Intervention[]>(
     []
@@ -174,14 +191,12 @@ const InterventionList = () => {
   const navigate = useNavigate();
 
   const handleRowClick = useCallback(
-    (intervention: InterventionCard) => {
+    (intervention: InterventionEssentials) => {
       console.log("Row clicked:", intervention);
-      
+
       navigate(`/allInterventions/${intervention.interId}`, {
-
-        state: { intervention }, 
+        state: { intervention },
       });
-
     },
     [navigate]
   );
@@ -264,8 +279,8 @@ const InterventionList = () => {
         let cellValue;
 
         if (isAdmin) {
-          const adminInter = inter as InterventionCard;
-          cellValue = adminInter[key as keyof InterventionCard];
+          const adminInter = inter as InterventionEssentials;
+          cellValue = adminInter[key as keyof InterventionEssentials];
         } else {
           const techInter = inter as Intervention;
           cellValue = techInter[key as keyof Intervention];
@@ -279,10 +294,10 @@ const InterventionList = () => {
       let aValue, bValue;
 
       if (isAdmin) {
-        const adminA = a as InterventionCard;
-        const adminB = b as InterventionCard;
-        aValue = adminA[orderBy as keyof InterventionCard];
-        bValue = adminB[orderBy as keyof InterventionCard];
+        const adminA = a as InterventionEssentials;
+        const adminB = b as InterventionEssentials;
+        aValue = adminA[orderBy as keyof InterventionEssentials];
+        bValue = adminB[orderBy as keyof InterventionEssentials];
       } else {
         const techA = a as Intervention;
         const techB = b as Intervention;
@@ -358,7 +373,9 @@ const InterventionList = () => {
                 <TableRow
                   hover
                   key={inter.interId}
-                  onClick={() => handleRowClick(inter as InterventionCard)}
+                  onClick={() =>
+                    handleRowClick(inter as InterventionEssentials)
+                  }
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   {isAdmin ? (
@@ -367,11 +384,21 @@ const InterventionList = () => {
                       <TableCell align="right">{inter.interId}</TableCell>
                       <TableCell>{inter.client}</TableCell>
                       <TableCell>
-                        {(inter as InterventionCard).technicianFullName}
+                        {(inter as InterventionEssentials).technicianFullName}
                       </TableCell>
                       <TableCell>{inter.date}</TableCell>
+                      <TableCell>{inter.submittedAt}</TableCell>
                       <TableCell>
-                        {inter.submittedAt}
+                        <span
+                          style={{
+                            color: getStatusColor(
+                              (inter as InterventionEssentials).status
+                            ),
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {getFrenchName((inter as InterventionEssentials).status)}
+                        </span>
                       </TableCell>
                     </>
                   ) : (

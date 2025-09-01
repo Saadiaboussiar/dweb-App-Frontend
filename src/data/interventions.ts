@@ -16,15 +16,35 @@ export type Intervention = {
   interUrl:string | null
 };
 
-export type InterventionCard={
+export type InterventionStatus = 
+  | 'PENDING' 
+  | 'VALIDATED' 
+  | 'REJECTED';
+
+
+export type InterventionEssentials={
   client: string;          
   ville: string;
   technicianFullName:string,
   date:string,
   submittedAt:string;
   interId: number;
+  status:InterventionStatus
 }
 
+export const getFrenchName=(status:string)=>{
+  
+  switch(status){
+    case "EN ATTENTE": 
+      return
+    case "VALIDATED":
+      return "VALIDÉ"
+    case "REJECTED":
+      return "REJETÉ"
+    default: 
+      return "non spécifié"
+  }
+}
 
 export const getInterventionsByTechnician=async (technicianId:number):Promise<Intervention[]>=>{
 
@@ -39,10 +59,10 @@ export const getInterventionsByTechnician=async (technicianId:number):Promise<In
 }
 
 
-export const getAllInterventionsCards=async ():Promise<InterventionCard[]>=>{
+export const getAllInterventionsCards=async ():Promise<InterventionEssentials[]>=>{
 
   try{
-    const response= await api.get('/intervention/interventionsDetails');
+    const response= await api.get('/intervention/interventionsEssentials');
     return Array.isArray(response.data) ? response.data : [];
 
   }catch(error){
@@ -54,7 +74,7 @@ export const getAllInterventionsCards=async ():Promise<InterventionCard[]>=>{
 export const getAllInterventions=async ():Promise<Intervention[]>=>{
 
   try{
-    const response= await api.get('/intervention');
+    const response= await api.get('/intervention/interventionsDetails');
 
     return Array.isArray(response.data) ? response.data : [];
 
@@ -84,3 +104,17 @@ export async function deleteIntervention(interventionId: number) {
     throw error; 
   }
 }
+
+export const validateIntervetion=async (interId:number, isValid:boolean)=>{
+
+  
+  try{
+    const reponse=await api.put(`/intervention/${interId}?isValidate=${isValid}`);
+
+    return reponse.data;
+
+  }catch(err){
+    console.log("error de validation d'intervention: ",err);
+  }
+} 
+ 

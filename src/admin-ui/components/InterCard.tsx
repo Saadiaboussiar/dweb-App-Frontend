@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { tokens } from "../../shared-theme/theme";
 import { Link } from "react-router-dom";
-import type {InterventionCard} from '../../data/interventions'
+import type {InterventionEssentials} from '../../data/interventions'
 
 
 
@@ -14,7 +14,7 @@ const InterCard = ({
   ville,
   submittedAt,
   interId,
-}: InterventionCard) => {
+}: InterventionEssentials) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
