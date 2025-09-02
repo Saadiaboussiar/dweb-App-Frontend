@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import Header from "../../../global/components/Header";
+import AdminTechnicianBonusDashboard from "../../components/PointsDashAdmin";
 
 const TechniciansBonus = () => {
   return (
@@ -10,7 +11,9 @@ const TechniciansBonus = () => {
           subTitle="Découvrez tous les avantages et récompenses pour nos techniciens"
         />
       </Box>
-      
+      <Box>
+        <AdminTechnicianBonusDashboard/>
+      </Box>
     </Box>
   );
 };

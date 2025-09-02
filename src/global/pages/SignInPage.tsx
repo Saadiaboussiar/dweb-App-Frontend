@@ -165,10 +165,7 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       token: accessToken, 
       refreshToken: refreshToken,
     }));
-
-    // Store tokens in localStorage
     
-    authService.setTokens(accessToken,refreshToken);
 
     console.log("User logged in:", data.email);
     console.log("User roles:", roles);

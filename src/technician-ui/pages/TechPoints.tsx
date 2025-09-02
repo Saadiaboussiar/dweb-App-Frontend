@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Header from "../../global/components/Header";
-import PointsDash from "../Components/PointsDash";
+import PointsDash from "../Components/PointsDashAdmin";
 
 const TechPoints = () => {
   return (

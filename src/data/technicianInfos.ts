@@ -1,5 +1,6 @@
 import type { GridFilterModel, GridPaginationModel, GridSortModel } from "@mui/x-data-grid";
 import api from "../Interceptors/api";
+import axios from "axios";
 
 export type TechnicianData = {
   id: number;
@@ -17,7 +18,12 @@ const INITIAL_TECHNICIANS_STORE: TechnicianData[] = [];
 export async function getTechniciansStore(): Promise<TechnicianData[]> {
   try {
     
-    const response = await api.get('/technicianInfos').catch(error => {
+    const access_token=sessionStorage.getItem("access_token");
+    const response = await axios.get('http://localhost:9090//technicianInfos',
+      {
+        headers:{'Authorization':`Bearer ${access_token}`}
+      }
+    ).catch(error => {
       throw new Error(`API request failed: ${error.message}`);
     });
     

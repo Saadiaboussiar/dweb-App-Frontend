@@ -1,6 +1,8 @@
 import { config } from "@fortawesome/fontawesome-svg-core";
 import axios from "axios";
 import { authService } from "../service/authService";
+import type { DecodedToken } from "utils/roleUtils";
+import { jwtDecode } from "jwt-decode";
 
 const api=axios.create({
     baseURL:'http://localhost:9090/'
@@ -12,7 +14,9 @@ api.interceptors.request.use(
     (config)=>{
 
         const token=sessionStorage.getItem('access_token');
-       
+
+        console.log("your access token: ",token);
+        
         if(token){
             config.headers.Authorization=`Bearer ${token}`;
         }
@@ -55,8 +59,10 @@ api.interceptors.response.use(
                     'refresh-token': newRefreshToken
                 } = response.data;
 
-                
-                authService.setTokens(newAccessToken,newRefreshToken);
+                const decoded: DecodedToken = jwtDecode(newAccessToken);
+                const expiresAt = decoded.exp * 1000;
+                        
+                authService.setTokens(newAccessToken,newRefreshToken, expiresAt.toString());
                 
                 originalRequest.headers.Authorization=`Bearer ${newAccessToken}`
 

@@ -1,6 +1,7 @@
 // features/auth/authSlice.ts
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { jwtDecode } from 'jwt-decode';
+import { authService } from '../../service/authService';
 
 interface DecodedToken {
   sub: string;
@@ -20,9 +21,9 @@ interface AuthState {
 
 // Get initial state from localStorage
 const getInitialState = (): AuthState => {
-  const token = localStorage.getItem('access_token');
-  const refreshToken = localStorage.getItem('refresh_token');
-  const expiresAt = localStorage.getItem('token_expires_at');
+  const token = sessionStorage.getItem('access_token');
+  const refreshToken = sessionStorage.getItem('refresh_token');
+  const expiresAt = sessionStorage.getItem('token_expires_at');
   
   let roles: string[] = [];
   let user:DecodedToken|null=null;
@@ -79,11 +80,7 @@ const authSlice = createSlice({
       state.expiresAt = expiresAt;
       
       // Store in localStorage
-      localStorage.setItem('access_token', token);
-      localStorage.setItem('refresh_token', refreshToken);
-      if (expiresAt) {
-        localStorage.setItem('token_expires_at', expiresAt.toString());
-      }
+      authService.setTokens(token,refreshToken,expiresAt?.toString() ?? 'undefined')
     },
     logout: (state) => {
       state.token = null;
@@ -93,9 +90,7 @@ const authSlice = createSlice({
       state.expiresAt = null;
       
       // Clear localStorage
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('token_expires_at');
+      authService.removeTokens();
     },
     clearAuth: (state) => {
       // Clear state without affecting localStorage (for auto-logout)

@@ -30,7 +30,6 @@ import { tokens } from "../../shared-theme/theme";
 import { useSelector } from "react-redux";
 import { selectIsCollapsed } from "../../features/slices/layoutSlice";
 import useNotifications from "../../hooks/useNotifications/useNotifications";
-import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 
 interface MonthlyData {
   month: string;
@@ -87,6 +86,7 @@ const PointsDash = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedPeriod, setSelectedPeriod] = useState<"6m" | "12m">("12m");
+
   const isCollapsed = useSelector(selectIsCollapsed);
   const colors = tokens(theme.palette.mode);
   const notifications = useNotifications();
@@ -185,7 +185,7 @@ const PointsDash = () => {
           </CardContent>
         </Card>
 
-        {/* Monthly Reward Card */}
+        
         <Card
           elevation={3}
           sx={{
