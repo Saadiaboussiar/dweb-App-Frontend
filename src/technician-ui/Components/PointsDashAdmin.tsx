@@ -152,6 +152,7 @@ const PointsDash = () => {
             borderRadius: 2,
             flex: isMobile ? "1" : "1 1 calc(25% - 24px)",
             minWidth: isMobile ? "100%" : "200px",
+            bgcolor:colors.primary[400]
           }}
         >
           <CardContent sx={{ p: 3 }}>
@@ -192,6 +193,7 @@ const PointsDash = () => {
             borderRadius: 2,
             flex: isMobile ? "1" : "1 1 calc(25% - 24px)",
             minWidth: isMobile ? "100%" : "200px",
+            bgcolor:colors.primary[400]
           }}
         >
           <CardContent sx={{ p: 3 }}>
@@ -219,6 +221,7 @@ const PointsDash = () => {
             borderRadius: 2,
             flex: isMobile ? "1" : "1 1 calc(25% - 24px)",
             minWidth: isMobile ? "100%" : "200px",
+            bgcolor:colors.primary[400]
           }}
         >
           <CardContent sx={{ p: 3 }}>
@@ -244,6 +247,7 @@ const PointsDash = () => {
             borderRadius: 2,
             flex: isMobile ? "1" : "1 1 calc(25% - 24px)",
             minWidth: isMobile ? "100%" : "200px",
+            bgcolor:colors.primary[400]
           }}
         >
           <CardContent sx={{ p: 3 }}>
@@ -266,7 +270,7 @@ const PointsDash = () => {
       </Box>
 
       {/* Progress to Next Goal */}
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 2, mb: 4 }}>
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2, mb: 4,bgcolor:colors.primary[400] }}>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
           Progression vers le prochain objectif: {nextGoal.description}
         </Typography>
@@ -299,7 +303,9 @@ const PointsDash = () => {
       </Paper>
 
       {/* Points History Chart */}
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 ,bgcolor:colors.primary[400]
+        
+      }}>
         <Box
           sx={{
             display: "flex",

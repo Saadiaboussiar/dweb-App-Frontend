@@ -29,6 +29,7 @@ const InterventionDetails = () => {
   const [technicians, setTechnicians] = useState<TechnicianData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
   useEffect(() => {
     const fetchInterventions = async () => {
       try {
@@ -77,12 +78,14 @@ const InterventionDetails = () => {
     isValid: boolean
   ) => {
     if (interId != undefined) {
+
       const response = await validateIntervetion(interId, isValid);
-      console.log(response.data);
+      
+      console.log("reponse de validation: ",response.data);
 
       if (response != null && response != undefined) {
-        notifications.show("Action est validé.", {
-          severity: "success",
+        notifications.show(isValid ? "Intervetion est validé." : "Intervention est rejeté.", {
+          severity: isValid ? "success" : "error",
           autoHideDuration: 3000,
         });
       } else {

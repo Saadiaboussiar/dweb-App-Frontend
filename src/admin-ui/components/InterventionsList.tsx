@@ -209,7 +209,7 @@ const InterventionList = () => {
           const data = await getAllInterventionsCards();
           setAdminInterventions(data);
         } else {
-          const data = await getInterventionsByTechnician(technicianId);
+          const data = await getInterventionsByTechnician();
           setTechInterventions(data);
         }
       } catch (err) {

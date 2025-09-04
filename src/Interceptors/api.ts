@@ -30,8 +30,14 @@ api.interceptors.response.use(
     async (error)=>{
         const originalRequest=error.config;
 
-        if(error.response?.status===401 && !originalRequest._retry){
+        const isTokenExpiredError = 
+            (error.response?.status === 500 || error.response?.status === 401) && 
+            error.response.data?.message === 'JWT token expired';
+
+        if (isTokenExpiredError && !originalRequest._retry) {{
+            
             console.log("Entering api refresh token");
+            
             originalRequest._retry=true;
             
             try{
@@ -50,7 +56,8 @@ api.interceptors.response.use(
                 {
                     headers:{
                         'Content-Type':'application/json'
-                    }
+                    },
+                    baseURL: ''
 
                 });
                 
@@ -59,13 +66,17 @@ api.interceptors.response.use(
                     'refresh-token': newRefreshToken
                 } = response.data;
 
+                if (!newAccessToken || !newRefreshToken) {
+                    throw new Error("Invalid tokens received from refresh endpoint");
+                }
+
                 const decoded: DecodedToken = jwtDecode(newAccessToken);
                 const expiresAt = decoded.exp * 1000;
                         
                 authService.setTokens(newAccessToken,newRefreshToken, expiresAt.toString());
                 
                 originalRequest.headers.Authorization=`Bearer ${newAccessToken}`
-
+                api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
 
                 return api(originalRequest);
 
@@ -77,7 +88,7 @@ api.interceptors.response.use(
 
                 if (!isPublicRoute) {
                     authService.removeTokens();
-                    window.location.href = '/login';
+                    window.location.href = `/login?reason=session_expired&returnUrl=${encodeURIComponent(currentPath)}`;
                 }
 
                 return Promise.reject(refreshError);
@@ -87,6 +98,7 @@ api.interceptors.response.use(
         return Promise.reject(error);
         
     }
+}
 )
 
 export default api;

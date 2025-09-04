@@ -56,7 +56,9 @@ const InterventionsCards = () => {
               maxWidth: "350px",
             }}
           >
-            <InterCard
+            {item.status==='PENDING' && 
+
+              <InterCard
               interId={item.interId}
               technicianFullName={item.technicianFullName}
               client={item.client}
@@ -65,6 +67,9 @@ const InterventionsCards = () => {
               date={item.date}
               status={item.status}
             />
+
+            } 
+            
           </Box>
         ))}
       </Box>

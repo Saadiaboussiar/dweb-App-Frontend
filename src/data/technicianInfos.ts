@@ -18,11 +18,7 @@ const INITIAL_TECHNICIANS_STORE: TechnicianData[] = [];
 export async function getTechniciansStore(): Promise<TechnicianData[]> {
   try {
     
-    const access_token=sessionStorage.getItem("access_token");
-    const response = await axios.get('http://localhost:9090//technicianInfos',
-      {
-        headers:{'Authorization':`Bearer ${access_token}`}
-      }
+    const response = await api.get('/technicianInfos'
     ).catch(error => {
       throw new Error(`API request failed: ${error.message}`);
     });

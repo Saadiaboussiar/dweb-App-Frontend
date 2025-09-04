@@ -1,8 +1,7 @@
 import api from '../Interceptors/api';
 
 export type Intervention = {
-  client: string;          // client name (or CIN if you prefer)
-  ville: string;
+  client: string;          
   km: number;
   technicianFN: string;
   technicianLN: string;
@@ -13,7 +12,9 @@ export type Intervention = {
   nbreIntervenant: number;
   interId: number;
   submittedAt:string;
-  interUrl:string | null
+  interUrl:string | null;
+  status?:InterventionStatus;
+
 };
 
 export type InterventionStatus = 
@@ -35,8 +36,8 @@ export type InterventionEssentials={
 export const getFrenchName=(status:string)=>{
   
   switch(status){
-    case "EN ATTENTE": 
-      return
+    case "PENDING": 
+      return "EN ATTENTE"
     case "VALIDATED":
       return "VALIDÉ"
     case "REJECTED":
@@ -46,16 +47,13 @@ export const getFrenchName=(status:string)=>{
   }
 }
 
-export const getInterventionsByTechnician=async (technicianId:number):Promise<Intervention[]>=>{
+export const getInterventionsByTechnician=async (technicianFN:string,technicianLN:string):Promise<Intervention[]>=>{
 
-  try{
-    const response= await api.get(`/bonIntervention/Technician/${technicianId}`);
-    return Array.isArray(response.data) ? response.data : [];
+  const interventions: Intervention[]=await getAllInterventions();
 
-  }catch(error){
-      console.error("failed to fetch interventions: ", error);
-      return [];
-  }
+  const techInterventions: Intervention[]=interventions.filter((inter)=>inter.technicianFN===technicianFN && inter.technicianLN===technicianLN);
+  return techInterventions;
+  
 }
 
 
@@ -75,6 +73,7 @@ export const getAllInterventions=async ():Promise<Intervention[]>=>{
 
   try{
     const response= await api.get('/intervention/interventionsDetails');
+
 
     return Array.isArray(response.data) ? response.data : [];
 
