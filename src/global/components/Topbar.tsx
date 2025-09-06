@@ -12,6 +12,7 @@ import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { useSelector } from "react-redux";
 import { selectIsCollapsed } from "../../features/slices/layoutSlice";
+import { Link } from "react-router-dom";
 
 const Topbar = () => {
   const theme = useTheme();
@@ -55,7 +56,7 @@ const Topbar = () => {
           <IconButton>
             <SettingsOutlinedIcon />
           </IconButton>
-          <IconButton>
+          <IconButton component={Link} to="/profile">
             <PersonOutlineOutlinedIcon />
           </IconButton>
         </Box>

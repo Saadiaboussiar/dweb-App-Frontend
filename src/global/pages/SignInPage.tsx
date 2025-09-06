@@ -76,6 +76,8 @@ interface FormValues {
 interface LoginResponse {
   "access-token": string;
   "refresh-token": string;
+  passwordChangeRequired: boolean;
+  roles: string[];
 }
 
 export default function SignIn(props: { disableCustomTheme?: boolean }) {
@@ -84,17 +86,15 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
   const [open, setOpen] = React.useState(false);
-  const [isLoading,setIsLoading]=React.useState<boolean>(false);
-  
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+
   const navigate = useNavigate();
 
- const dispatch=useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>();
 
   const validateInputs = () => {
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
-    const username = document.getElementById("username") as HTMLInputElement;
-   
 
     let isValid = true;
 
@@ -131,52 +131,95 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
     setOpen(false);
   };
 
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsLoading(true);
 
-const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-  setIsLoading(true);
+    if (!validateInputs()) {
+      setIsLoading(false);
+      return;
+    }
 
-  if (!validateInputs()) {
-    setIsLoading(false);
-    return;
-  }
+    const formData = new FormData(event.currentTarget);
+    const data: FormValues = {
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    };
 
-  const formData = new FormData(event.currentTarget);
-  const data: FormValues = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
+    try {
+      const response = await axios.post<LoginResponse>(
+        "http://localhost:9090/login",
+        data,
+        {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        }
+      );
 
-  try {
-    const response = await axios.post<LoginResponse>(
-      "http://localhost:9090/login", 
-      data, 
-      {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      const {
+        "access-token": accessToken,
+        "refresh-token": refreshToken,
+        passwordChangeRequired: passwordChangeRequired,
+        roles: rolesList,
+      } = response.data;
+
+      const roles: string[] = extractRolesFromToken(accessToken);
+
+      const isAdmin = rolesList.includes("ADMIN");
+
+      dispatch(
+        setCredentials({
+          token: accessToken,
+          refreshToken: refreshToken,
+        })
+      );
+
+      console.log("User logged in:", data.email);
+      console.log("User roles:", roles);
+      console.log("isAdmin: ", isAdmin);
+
+      if (passwordChangeRequired && !isAdmin) {
+        navigate("/change-password", { replace: true });
+      } else {
+        if (isAdmin) navigate("/dashboard", { replace: true });
+        else navigate("/techDashboard", { replace: true });
       }
-    );
 
-    const { "access-token": accessToken, "refresh-token": refreshToken } = response.data;
-
-    
-    const roles:string[] = extractRolesFromToken(accessToken);
-
-    dispatch(setCredentials({ 
-      token: accessToken, 
-      refreshToken: refreshToken,
-    }));
-    
-
-    console.log("User logged in:", data.email);
-    console.log("User roles:", roles);
-    
-    navigate("/dashboard", { replace: true });
-  } catch (error: any) {
-    // Error handling...
-  } finally {
-    setIsLoading(false);
-  }
-};
+      if (response.status === 401) {
+        setPasswordError(true);
+        setPasswordErrorMessage("Le mot de passe est incorrect");
+        
+      } else if (response.status === 404) {
+        setEmailError(true);
+        setEmailErrorMessage("Utilisateur non trouvé");
+      }
+    } catch (error: any) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if (error.response.status === 401) {
+          setPasswordError(true);
+          setPasswordErrorMessage("Le mot de passe est incorrect");
+        } else if (error.response.status === 404) {
+          setEmailError(true);
+          setEmailErrorMessage("Utilisateur non trouvé");
+        } else {
+          // Handle other error statuses
+          setPasswordError(true);
+          setPasswordErrorMessage("Une erreur s'est produite lors de la connexion");
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        setPasswordError(true);
+        setPasswordErrorMessage("Impossible de se connecter au serveur");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setPasswordError(true);
+        setPasswordErrorMessage("Une erreur inattendue s'est produite");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <AppTheme {...props}>
@@ -248,7 +291,6 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               type="submit"
               fullWidth
               variant="contained"
-              onClick={validateInputs}
             >
               Se connecter
             </Button>

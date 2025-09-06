@@ -87,6 +87,7 @@ export default function TechnicianCreate() {
   }, [setFormValues]);
 
   const handleFormSubmit = React.useCallback(
+
     async (submittedValues: Partial<TechnicianFormState["values"]>) => {
       const { issues } = validateTechnician(formValues);
 
@@ -107,7 +108,7 @@ export default function TechnicianCreate() {
           formData.append(key, value as string | Blob);
         }
       });
-
+      
       try {
         const result = await createTechnician(formData);
 

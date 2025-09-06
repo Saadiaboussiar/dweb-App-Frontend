@@ -5,6 +5,8 @@ import { Route, Routes } from "react-router-dom";
 import MainLayout from "./MainLayout";
 import SignUp from "./global/pages/SignUpPage";
 import SignIn from "./global/pages/SignInPage";
+import ChangePassword from "./global/pages/ChangePasswoedPage";
+import ProfilePage from "./global/pages/ProfilePage";
 const App: React.FC = () => {
   const [theme, colorMode] = useMode();
 
@@ -16,6 +18,9 @@ const App: React.FC = () => {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<SignIn />} />
           <Route path="/" element={<SignIn />} />
+          <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/profile" element={<ProfilePage />} />
+
           <Route path="/*" element={<MainLayout />} />
         </Routes>
       </ThemeProvider>
