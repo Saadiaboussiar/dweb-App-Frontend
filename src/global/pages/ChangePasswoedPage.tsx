@@ -160,7 +160,7 @@ export default function ChangePasswordPage(props: {
 
       const response = await axios.post<ChangePasswordResponse>(
         "http://localhost:9090/auth/change-password",
-        data, // No need to stringify when using FormData
+        data, 
         {
           headers: {
             "Content-Type": "application/json",

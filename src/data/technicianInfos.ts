@@ -10,7 +10,6 @@ export type TechnicianData = {
   phoneNumber: string;
   cin: string;
   cnss: string;
-  profileUrl: string;
 };
 
 const INITIAL_TECHNICIANS_STORE: TechnicianData[] = [];
