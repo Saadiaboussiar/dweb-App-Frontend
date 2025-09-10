@@ -5,54 +5,59 @@ export type profileDataType={
   email: string;
   phoneNumber: string;
   cin: string;
+  profileUrl:string;
+  role:string
 }
 
 const UNDEFINED_VALUES:profileDataType={
     fullName:"undefined",
     email:"undefined",
     phoneNumber:"undefined",
-    cin:"undefined"
+    cin:"undefined",
+    profileUrl:"",
+    role:""
 }
 
-export const editProfileData=async (technicianId:number,data:Partial<profileDataType>):Promise<profileDataType | undefined>=>{
+export const editProfileData=async (userEmail:string,data:Partial<profileDataType>):Promise<profileDataType | undefined>=>{
 
     try{
-        const response=await api.put(`/technicianInfos/editProfile/${technicianId}`,JSON.stringify(data) ,{
+        const response=await api.put(`/user/editProfile/${userEmail}`,JSON.stringify(data) ,{
         headers: {
             "Content-Type": "application/json",
             },
         })
 
         if(response.data!=null && response.data!=undefined){
+            console.log("cin: ",data.cin);
             return response.data
         }else{
             return undefined;
         }
     }catch(err){
-        console.log("error updating user:",technicianId,err);
+        console.log("error updating user:",userEmail,err);
     }
 }
 
-export const getProfileData=async (technicianId:number):Promise<profileDataType>=>{
+export const getProfileData=async (userEmail:string):Promise<profileDataType>=>{
 
     try{
-        const response=await api.get(`/technicianInfos/getProfile/${technicianId}`);
+        const response=await api.get(`/user/getProfile/${userEmail}`);
 
         return response.data
         
     }catch(err){
-        console.log("error fetching user:",technicianId,err);
+        console.log("error fetching user:",userEmail,err);
         return UNDEFINED_VALUES;
     }
 }
 
-export const uploadProfilePhoto=async (file:File,technicianId:number)=>{
+export const uploadProfilePhoto=async (file:File,userEmail:string)=>{
 
     const formData = new FormData();
     formData.append('profilePhoto', file);
   
     try{
-        const response=await api.post(`/technicianInfos/profilePhoto/${technicianId}`,formData)
+        const response=await api.post(`/user/profilePhoto/${userEmail}`,formData)
     
     console.log('Profile photo uploaded successfully:', response.data);
     return response.data;

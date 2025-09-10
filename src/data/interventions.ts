@@ -14,7 +14,7 @@ export type Intervention = {
   submittedAt:string;
   interUrl:string | null;
   status?:InterventionStatus;
-
+  ville:string;
 };
 
 export type InterventionStatus = 
@@ -47,12 +47,18 @@ export const getFrenchName=(status:string)=>{
   }
 }
 
-export const getInterventionsByTechnician=async (technicianFN:string,technicianLN:string):Promise<Intervention[]>=>{
+export const getInterventionsByTechnician=async (technicianEmail:string):Promise<Intervention[]>=>{
 
-  const interventions: Intervention[]=await getAllInterventions();
+  try {
+    const response=await api.get(`/technicianInfos/${technicianEmail}`);
+    
+    return response.data ;
 
-  const techInterventions: Intervention[]=interventions.filter((inter)=>inter.technicianFN===technicianFN && inter.technicianLN===technicianLN);
-  return techInterventions;
+  }catch(error){
+      console.error("failed to fetch interventions: ", error);
+      return [];
+  }
+  
   
 }
 

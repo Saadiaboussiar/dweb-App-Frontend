@@ -84,11 +84,15 @@ const Sidebar = () => {
   const isCollapsed = useSelector(selectIsCollapsed);
   const dispatch = useDispatch();
   const [selected, setSelected] = useState("Tableau de bord");
+  const [profilePhoto,setProfilePhoto]=useState("");
+
   console.log("isCollapsed: ", isCollapsed);
 
   const user = useSelector(selectUser);
   const roles = useSelector(selectRoles);
+  const email=sessionStorage.getItem("userEmail");
 
+  
 console.log("roles: ",roles);
 console.log("user: ",user);
   const { isAdmin } = useRoles();

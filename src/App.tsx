@@ -7,6 +7,7 @@ import SignUp from "./global/pages/SignUpPage";
 import SignIn from "./global/pages/SignInPage";
 import ChangePassword from "./global/pages/ChangePasswoedPage";
 import ProfilePage from "./global/pages/ProfilePage";
+import Aide from "./global/pages/Aide&Support";
 const App: React.FC = () => {
   const [theme, colorMode] = useMode();
 
@@ -19,8 +20,6 @@ const App: React.FC = () => {
           <Route path="/login" element={<SignIn />} />
           <Route path="/" element={<SignIn />} />
           <Route path="/change-password" element={<ChangePassword />} />
-          <Route path="/profile" element={<ProfilePage />} />
-
           <Route path="/*" element={<MainLayout />} />
         </Routes>
       </ThemeProvider>

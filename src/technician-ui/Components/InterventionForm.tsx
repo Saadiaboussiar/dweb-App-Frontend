@@ -151,18 +151,21 @@ export default function InterventionForm() {
     try {
       const response = await api.post("/bonIntervention", formPayload);
 
-      if (response !== null && response !== undefined && typeof response.data==='number') {
+      if (
+        response !== null &&
+        response !== undefined &&
+        typeof response.data === "number"
+      ) {
         notifications.show("Intervention enregistré avec sucées.", {
           severity: "success",
           autoHideDuration: 3000,
         });
 
         if (file.photoPreview) {
-        URL.revokeObjectURL(file.photoPreview);
-      }
-      setFormData(initialFormState);
-      setFile({ bonImage: null, photoPreview: "" });
-    
+          URL.revokeObjectURL(file.photoPreview);
+        }
+        setFormData(initialFormState);
+        setFile({ bonImage: null, photoPreview: "" });
       } else {
         notifications.show(
           "Intervention est bien enregistré, mais réponse inattendue du serveur.",
@@ -172,8 +175,7 @@ export default function InterventionForm() {
           }
         );
       }
-
-      } catch (error) {
+    } catch (error) {
       if (axios.isAxiosError(error)) {
         const serverMessage = error.response?.data?.message;
         const statusCode = error.response?.status;
@@ -208,6 +210,9 @@ export default function InterventionForm() {
         },
         mt: "30px",
         transition: "margin-left 0.3s ease",
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "80vh",
       }}
     >
       <FormGroup>
@@ -319,7 +324,7 @@ export default function InterventionForm() {
                 xs: "80px",
                 sm: "180px",
                 md: "290px",
-                lg: !isCollapsed ? "425px" : "460px",
+                lg: !isCollapsed ? "400px" : "460px",
               },
 
               mt: "7px",
@@ -360,7 +365,7 @@ export default function InterventionForm() {
                     variant="text"
                     startIcon={<CloudUpload />}
                   >
-                    Select Photo
+                    Uploader photo de bon
                     <input
                       type="file"
                       hidden
@@ -374,20 +379,19 @@ export default function InterventionForm() {
           </Card>
         </Grid>
       </FormGroup>
+      <Box sx={{ flexGrow: 1 }}></Box>
       <Stack
         direction="row"
         spacing={2}
-        justifyContent="space-between"
         sx={{
           ml: {
-            xs: "110px",
-            sm: "210px",
-            md: "320px",
-            lg: !isCollapsed ? "455px" : "490px",
+            xs: "140px",
+            sm: "240px",
+            md: "350px",
+            lg: !isCollapsed ? "455px" : "520px",
           },
-
+          mt: 2, // Marge haute au lieu de marges gauche excessives
           mb: "20px",
-          transition: "margin-left 0.3s ease",
         }}
       >
         <Button

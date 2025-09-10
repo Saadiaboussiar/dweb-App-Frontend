@@ -10,6 +10,7 @@ export type TechnicianData = {
   phoneNumber: string;
   cin: string;
   cnss: string;
+  profileUrl:string
 };
 
 const INITIAL_TECHNICIANS_STORE: TechnicianData[] = [];
@@ -141,10 +142,11 @@ export async function createTechnician(formaData:FormData):Promise<number> {
         return id;
       }
   }
+
   throw new Error('Unexpected response format from server');
-  }catch(error){
-     console.error('Error in createTechnician:', error);
-    throw error;
+  }catch(error:any){
+    console.error('Error in createTechnician:', error);
+    throw error.message;
   }
 }
 

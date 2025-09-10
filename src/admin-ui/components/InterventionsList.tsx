@@ -187,7 +187,8 @@ const InterventionList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const technicianId = useSelector(selectTechnicianId);
+  const technicianEmail:string = sessionStorage.getItem("userEmail") ?? "";
+
   const navigate = useNavigate();
 
   const handleRowClick = useCallback(
@@ -209,9 +210,11 @@ const InterventionList = () => {
           const data = await getAllInterventionsCards();
           setAdminInterventions(data);
         } else {
-          const data = await getInterventionsByTechnician();
+          const data = await getInterventionsByTechnician(technicianEmail);
+          const rawData=data.filter((data)=>data.status==='PENDING');
           setTechInterventions(data);
         }
+        
       } catch (err) {
         setError("Failed to load interventions");
         console.error(err);
@@ -220,7 +223,7 @@ const InterventionList = () => {
       }
     };
     fetchInterventions();
-  }, [isAdmin, technicianId]);
+  }, [isAdmin, technicianEmail]);
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "Non spécifiée";

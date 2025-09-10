@@ -24,7 +24,6 @@ const INITIAL_FORM_VALUES: Partial<TechnicianFormState["values"]> = {
   phoneNumber: "",
   cin: "",
   cnss: "",
-  profileUrl: "",
 };
 
 export default function TechnicianCreate() {
@@ -113,10 +112,11 @@ export default function TechnicianCreate() {
         const result = await createTechnician(formData);
 
         if (result !== null && result !== undefined) {
+          
           dispatch(setTechnicianId(result));
           console.log("id of technician :", technicianId);
 
-          notifications.show("Technicien créé avec succès.", {
+          notifications.show("Technicien est ajouté avec succès.", {
             severity: "success",
             autoHideDuration: 3000,
           });

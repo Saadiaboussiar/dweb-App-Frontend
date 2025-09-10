@@ -174,10 +174,6 @@ export default function ChangePasswordPage(props: {
       if (responseData.success) {
         setSuccessMessage(responseData.message || "Mot de passe changé avec succès!");
 
-        // Store technicianId if available
-        if (responseData.technicianId) {
-          sessionStorage.setItem("technicianId", responseData.technicianId.toString());
-        }
 
         // Update tokens if provided
         if (responseData.accessToken && responseData.refreshToken) {

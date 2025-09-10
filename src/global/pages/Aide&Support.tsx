@@ -1,22 +1,21 @@
 import Box from "@mui/material/Box";
 import Header from "../components/Header";
 import AideComponent from "../components/Aide";
-import Profile from "../components/Profile";
 
-const ProfilePage = () => {
+const Aide = () => {
   return (
     <Box m="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header
-          title="VOTRE PROFILE"
-          subTitle="Vos informations personnelles et préférences"
+          title="AIDE ET SUPPORT"
+          subTitle="Trouvez des réponses et contactez notre équipe d’assistance"
         />
       </Box>
-      <Box >
-        <Profile />
+      <Box mt="20px">
+        <AideComponent/>
       </Box>
     </Box>
   );
 };
 
-export default ProfilePage;
+export default Aide;

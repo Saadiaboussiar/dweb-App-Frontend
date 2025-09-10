@@ -25,6 +25,7 @@ import { extractRolesFromToken } from "../../utils/roleUtils";
 import { setCredentials } from "../../features/slices/authSlice";
 import { jwtDecode } from "jwt-decode";
 import { authService } from "../../service/authService";
+import { setUser } from "../../features/slices/userSlice";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -77,7 +78,8 @@ interface LoginResponse {
   "access-token": string;
   "refresh-token": string;
   passwordChangeRequired: boolean;
-  roles: string[];
+  role: string;
+  userEmail:string;
 }
 
 export default function SignIn(props: { disableCustomTheme?: boolean }) {
@@ -159,7 +161,8 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
         "access-token": accessToken,
         "refresh-token": refreshToken,
         passwordChangeRequired: passwordChangeRequired,
-        roles: rolesList,
+        role: rolesList,
+        userEmail:userEmail,
       } = response.data;
 
       const roles: string[] = extractRolesFromToken(accessToken);
@@ -173,9 +176,17 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
         })
       );
 
+     
+      dispatch(setUser({ 
+        email:userEmail,
+        role: response.data.role
+      }));
+    
+
       console.log("User logged in:", data.email);
       console.log("User roles:", roles);
       console.log("isAdmin: ", isAdmin);
+      console.log("passwordChangeRequired",passwordChangeRequired)
 
       if (passwordChangeRequired && !isAdmin) {
         navigate("/change-password", { replace: true });
