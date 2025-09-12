@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { Button, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../shared-theme/theme";
 import useNotifications from "../../hooks/useNotifications/useNotifications";
+import { sendNotification, type NotificationRequest } from "data/notifications";
 
 const InterventionDetails = () => {
   const theme = useTheme();
@@ -29,7 +30,12 @@ const InterventionDetails = () => {
   const [technicians, setTechnicians] = useState<TechnicianData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+  const [notification, setNotifications] = useState<NotificationRequest>({
+    clientName: "",
+    interventionId: 0,
+    type: "",
+  });
+
   useEffect(() => {
     const fetchInterventions = async () => {
       try {
@@ -59,6 +65,7 @@ const InterventionDetails = () => {
     fetchInterventions();
     fetchTechnicians();
   }, []);
+
   console.log("Intervention: ", interventions);
 
   const intervention = interventions.find(
@@ -78,28 +85,35 @@ const InterventionDetails = () => {
     isValid: boolean
   ) => {
     if (interId != undefined) {
+      const formData = new FormData();
+      formData.append("clientName", notification.clientName);
+      formData.append("interventionId", notification.interventionId.toString());
+      formData.append("type", notification.type);
 
-      const response = await validateIntervetion(interId, isValid);
-      
-      console.log("reponse de validation: ",response.data);
+      const response1 = await validateIntervetion(interId, isValid);
+      const response2=await sendNotification(technician?.email ?? "",formData);
 
-      if (response != null && response != undefined) {
-        notifications.show(isValid ? "Intervetion est validé." : "Intervention est rejeté.", {
-          severity: isValid ? "success" : "error",
-          autoHideDuration: 3000,
-        });
-      } else {
+      console.log("reponse de validation: ", response1.data);
+
+      if (response1 != null && response1 != undefined && response2 != null && response2 != undefined ) {
         notifications.show(
-          "Action n'est pas validé.",
+          isValid ? "Intervetion est validé." : "Intervention est rejeté.",
           {
-            severity: "warning",
+            severity: isValid ? "success" : "error",
             autoHideDuration: 3000,
           }
         );
+      } else {
+        notifications.show("Action n'est pas validé.", {
+          severity: "warning",
+          autoHideDuration: 3000,
+        });
       }
     } else {
       alert("l'intervention n'est pas difiner");
     }
+
+
   };
 
   return (

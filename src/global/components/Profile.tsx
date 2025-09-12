@@ -6,29 +6,33 @@ import {
   Typography,
   TextField,
   Button,
-  Grid,
   Box,
   Divider,
-  Switch,
-  FormControlLabel,
   InputAdornment,
   IconButton,
-  DialogActions,
   Dialog,
   DialogContent,
   DialogTitle,
   useTheme,
+  Card,
+  CardContent,
+  Alert,
+  Chip,
+  alpha,
 } from "@mui/material";
 import {
   Edit as EditIcon,
-  Visibility,
-  VisibilityOff,
   Person as PersonIcon,
   Email as EmailIcon,
   Phone as PhoneIcon,
   Badge as BadgeIcon,
-  Delete,
+  DriveEta as DriveEtaIcon,
   PhotoCamera,
+  VpnKey as KeyIcon,
+  Logout as LogoutIcon,
+  Save as SaveIcon,
+  Cancel as CancelIcon,
+  Lock as LockIcon,
 } from "@mui/icons-material";
 import { useRoles } from "../../hooks/useRoles";
 import {
@@ -40,22 +44,28 @@ import {
 import { tokens } from "../../shared-theme/theme";
 import { useSelector } from "react-redux";
 import { selectIsCollapsed } from "../../features/slices/layoutSlice";
+import { Link } from "react-router-dom";
 
-const Profile = () => {
+interface ProfileProps {
+  onLogout: () => void;
+}
+
+const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
   const [editing, setEditing] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<profileDataType>({
     fullName: "",
     email: "",
     phoneNumber: "",
     cin: "",
     profileUrl: "",
+    carMatricule: "",
     role: "",
   });
   const { isAdmin } = useRoles();
-  const userEmail: string = sessionStorage.getItem("userEmail") ?? "";
+  const email = sessionStorage.getItem("userEmail");
 
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -82,19 +92,14 @@ const Profile = () => {
       setIsDialogOpen(false);
 
       try {
-        await uploadProfilePhoto(file, userEmail);
-        console.log("Photo uploaded successfully");
+        await uploadProfilePhoto(file, email ?? "");
+        setSuccess("Photo de profil mise à jour avec succès");
+        setTimeout(() => setSuccess(null), 3000);
       } catch (error) {
-        console.error("Upload failed:", error);
+        setError("Échec du téléchargement de la photo");
+        setTimeout(() => setError(null), 3000);
       }
     }
-  };
-
-  // Handle delete photo
-  const handleDeletePhoto = () => {
-    setProfilePhoto(null);
-    setPreviewUrl("");
-    setIsDialogOpen(false);
   };
 
   // Handle opening file dialog
@@ -118,8 +123,8 @@ const Profile = () => {
     const fetchProfileData = async () => {
       try {
         setLoading(true);
+        const data = await getProfileData(email ?? "");
 
-        const data = await getProfileData(userEmail);
         if (data) {
           setProfileData({
             fullName: data.fullName ?? "",
@@ -127,272 +132,438 @@ const Profile = () => {
             phoneNumber: data.phoneNumber ?? "",
             cin: data.cin ?? "",
             profileUrl: data.profileUrl ?? "",
+            carMatricule: data.carMatricule ?? "",
             role: data.role ?? "",
           });
           setPreviewUrl(data.profileUrl);
         }
       } catch (err) {
-        setError("Failed to load profile data");
-        console.error(err);
+        setError("Erreur lors du chargement des données du profil");
+        setTimeout(() => setError(null), 3000);
       } finally {
         setLoading(false);
       }
     };
     fetchProfileData();
-  }, [userEmail]);
+  }, [email]);
 
   const handleInputChange = (field: string, value: string) => {
     setProfileData({
       ...profileData,
       [field]: value,
     });
-
-    const updatedData = editProfileData(userEmail, profileData);
-    console.log("profile data was apdated");
   };
 
-  const handleSave = () => {
-    setEditing(false);
-    console.log("Saved data:", profileData);
+  const handleSave = async () => {
+    try {
+      await editProfileData(email ?? "", profileData);
+      setEditing(false);
+      setSuccess("Profil mis à jour avec succès");
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (error) {
+      setError("Erreur lors de la mise à jour du profil");
+      setTimeout(() => setError(null), 3000);
+    }
   };
 
   const handleCancel = () => {
     setEditing(false);
+    // Recharger les données originales
+    const fetchOriginalData = async () => {
+      const data = await getProfileData(email ?? "");
+      if (data) {
+        setProfileData({
+          fullName: data.fullName ?? "",
+          email: data.email ?? "",
+          phoneNumber: data.phoneNumber ?? "",
+          cin: data.cin ?? "",
+          profileUrl: data.profileUrl ?? "",
+          carMatricule: data.carMatricule ?? "",
+          role: data.role ?? "",
+        });
+      }
+    };
+    fetchOriginalData();
   };
 
   return (
     <Container
-      maxWidth="md"
+      maxWidth="lg"
       sx={{
         py: 4,
-        height: "100hv",
         ml: {
           xs: "100px",
           sm: "105px",
           md: "110px",
           lg: !isCollapsed ? "360px" : "300px",
         },
+        transition: "margin-left 0.3s ease",
       }}
     >
-      <Paper
-        elevation={2}
+      {/* Notifications */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
+      )}
+
+      <Box
         sx={{
-          p: 4,
-          borderRadius: 2,
-          bgcolor: colors.primary[400],
-          boxShadow: 10,
+          display: "flex",
+          flexDirection: { xs: "column" },
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 4,
         }}
       >
-        {/* Header */}
-
         <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
-            mb: 4,
-            flexDirection: { xs: "column", sm: "row" },
-            textAlign: { xs: "center", sm: "left" },
+            mr: {
+              xs: "20",
+              sm: "85px",
+              md: "90px",
+              lg: "300px",
+            },
+            width: {
+              xs: "100%",
+              sm: "80%",
+              md: "70%",
+              lg: "60%",
+            },
           }}
         >
-          <Box sx={{ position: "relative", mr: 3, mb: { xs: 2, sm: 0 } }}>
-            <Avatar
-              src={previewUrl}
-              sx={{
-                width: "200px",
-                height: "200px",
-                border: "2px solid #e0e0e0",
-              }}
-            >
-              {!previewUrl && <PersonIcon sx={{ fontSize: 40 }} />}
-            </Avatar>
-            {editing && (
-              <IconButton
-                sx={{
-                  position: "absolute",
-                  bottom: 0,
-                  right: 0,
-                  bgcolor: "primary.main",
-                  color: "white",
-                  "&:hover": { bgcolor: colors.primary[900] },
-                }}
-                onClick={handleEditClick}
-              >
-                <EditIcon />
-              </IconButton>
-            )}
-          </Box>
-
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h2" component="h1" fontWeight="600">
-              {profileData.fullName}
-            </Typography>
-          </Box>
-          <Button
-            variant={editing ? "outlined" : "contained"}
-            startIcon={<EditIcon />}
-            onClick={() => (editing ? handleSave() : setEditing(true))}
+          <Card
+            elevation={3}
             sx={{
-              mt: { xs: 2, sm: 1 },
-              mr: "0px",
-              width: "300px",
-              height: "50px",
-              borderBlockColor: colors.primary[800],
-              "&:hover": {
-                bgcolor: editing ? colors.primary[400] : colors.primary[900],
-              },
+              borderRadius: 3,
+              overflow: "hidden",
+              bgcolor: "background.paper",
             }}
           >
-            {editing ? "Enregistrer les échanges" : "Modifier le Profile"}
-          </Button>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                p: 4,
+                background: `linear-gradient(135deg, ${colors.primary[500]} 0%, ${colors.primary[700]} 100%)`,
+                color: "white",
+              }}
+            >
+              <Box sx={{ position: "relative", mb: 2 }}>
+                <Avatar
+                  src={previewUrl}
+                  sx={{
+                    width: 120,
+                    height: 120,
+                    border: "4px solid white",
+                    boxShadow: 3,
+                  }}
+                >
+                  {!previewUrl && <PersonIcon sx={{ fontSize: 50 }} />}
+                </Avatar>
+                <IconButton
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    bgcolor: "primary.main",
+                    color: "white",
+                    "&:hover": { bgcolor: "primary.dark" },
+                    boxShadow: 2,
+                  }}
+                  onClick={handleEditClick}
+                >
+                  <PhotoCamera />
+                </IconButton>
+              </Box>
+
+              <Typography variant="h5" fontWeight="600" gutterBottom>
+                {profileData.fullName}
+              </Typography>
+              <Chip
+                label={profileData.role}
+                size="small"
+                sx={{
+                  bgcolor: colors.greenAccent[800],
+                  color: colors.greenAccent[500],
+                  fontWeight: "medium",
+                }}
+              />
+            </Box>
+
+            <CardContent>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Button
+                  variant={editing ? "contained" : "outlined"}
+                  startIcon={
+                    editing ? (
+                      <SaveIcon sx={{ bgcolor: colors.greenAccent[500] }} />
+                    ) : (
+                      <EditIcon sx={{ color: colors.primary[300] }} />
+                    )
+                  }
+                  onClick={editing ? handleSave : () => setEditing(true)}
+                  fullWidth
+                  sx={{
+                    bgcolor: editing ? colors.greenAccent[500] : "primary",
+                    borderColor: colors.primary[700],
+                    color: colors.primary[300],
+                    fontSize: "15px",
+                  }}
+                >
+                  {editing ? "Sauvegarder" : "Modifier le profil"}
+                </Button>
+
+                {editing && (
+                  <Button
+                    variant="outlined"
+                    startIcon={<CancelIcon />}
+                    onClick={handleCancel}
+                    fullWidth
+                    sx={{
+                      bgcolor: colors.redAccent[500],
+                    }}
+                  >
+                    Annuler
+                  </Button>
+                )}
+
+                <Button
+                  component={Link}
+                  to="/change-password"
+                  variant="outlined"
+                  startIcon={<KeyIcon />}
+                  fullWidth
+                  sx={{
+                    borderColor: colors.blueAccent[500],
+                    color: colors.blueAccent[500],
+                    fontSize: "15px",
+                    "&:hover": {
+                      borderColor: colors.blueAccent[700],
+                      bgcolor: alpha(colors.blueAccent[500], 0.04),
+                    },
+                  }}
+                >
+                  Changer le mot de passe
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  startIcon={<LogoutIcon />}
+                  onClick={onLogout}
+                  fullWidth
+                  sx={{
+                    borderColor: colors.redAccent[500],
+                    color: colors.redAccent[600],
+                    fontSize: "15px",
+                    "&:hover": {
+                      borderColor: colors.redAccent[700],
+                      bgcolor: alpha(colors.redAccent[500], 0.04),
+                    },
+                  }}
+                >
+                  Se déconnecter
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
         </Box>
 
-        <Divider sx={{ mb: 4 }} />
-
-        {/* Profile Form */}
-        <Grid container spacing={3}>
-          {/* Name Field */}
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="Nom Complet"
-              value={profileData.fullName}
-              onChange={(e) => handleInputChange("fullName", e.target.value)}
-              disabled={!editing}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonIcon color="action" />
-                  </InputAdornment>
-                ),
+        {/* Colonne de droite - Détails du profil */}
+        <Box
+          sx={{
+            width: {
+              xs: "80%",
+              sm: "100%",
+              md: "90%",
+              lg: "80%",
+            },
+            mr: {
+              xs: "90px",
+              sm: "8px",
+              md: "90px",
+              lg: "350px",
+            },
+          }}
+        >
+          <Card
+            elevation={2}
+            sx={{
+              borderRadius: 3,
+              overflow: "hidden",
+              bgcolor: "background.paper",
+            }}
+          >
+            <Box
+              sx={{
+                p: 3,
+                bgcolor: "primary.main",
+                color: "white",
               }}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="Adresse e-mail"
-              type="email"
-              value={profileData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              disabled={!editing}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <EmailIcon color="action" />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
+            >
+              <Typography variant="h6" fontWeight="600">
+                Informations personnelles
+              </Typography>
+              <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                Gérez vos informations personnelles et vos préférences
+              </Typography>
+            </Box>
 
-          {!isAdmin && (
-            <>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  label="Numéro de Téléhone"
-                  value={profileData.phoneNumber}
-                  onChange={(e) =>
-                    handleInputChange("phoneNumber", e.target.value)
-                  }
-                  disabled={!editing}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PhoneIcon color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
+            <CardContent sx={{ p: 4 }}>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+                <Box sx={{ width: { xs: "100%", sm: "45%" } }}>
+                  <TextField
+                    fullWidth
+                    label="Nom Complet"
+                    value={profileData.fullName}
+                    onChange={(e) =>
+                      handleInputChange("fullName", e.target.value)
+                    }
+                    disabled={!editing}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PersonIcon color="action" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    variant={editing ? "outlined" : "filled"}
+                  />
+                </Box>
 
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  label="CIN"
-                  value={profileData.cin}
-                  onChange={(e) => handleInputChange("cin", e.target.value)}
-                  disabled={!editing}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <BadgeIcon color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-            </>
-          )}
-          {/* Password Change Section 
-          <Grid size={12}>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="h6" gutterBottom>
-              Changer mot de passe
-            </Typography>
-          </Grid>
+                <Box sx={{ width: { xs: "100%", sm: "45%" } }}>
+                  <TextField
+                    fullWidth
+                    label="Adresse e-mail"
+                    type="email"
+                    value={profileData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    disabled={!editing}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <EmailIcon color="action" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    variant={editing ? "outlined" : "filled"}
+                  />
+                </Box>
 
-          
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="New Password"
-              type={showPassword ? "text" : "password"}
-              disabled={!editing}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
+                {!isAdmin && (
+                  <>
+                    <Box sx={{ width: { xs: "100%", sm: "45%" } }}>
+                      <TextField
+                        fullWidth
+                        label="Numéro de Téléphone"
+                        value={profileData.phoneNumber}
+                        onChange={(e) =>
+                          handleInputChange("phoneNumber", e.target.value)
+                        }
+                        disabled={!editing}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <PhoneIcon color="action" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        variant={editing ? "outlined" : "filled"}
+                      />
+                    </Box>
 
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="Confirm Password"
-              type={showPassword ? "text" : "password"}
-              disabled={!editing}
-            />
-          </Grid>
+                    <Box sx={{ width: { xs: "100%", sm: "45%" } }}>
+                      <TextField
+                        fullWidth
+                        label="CIN"
+                        value={profileData.cin}
+                        onChange={(e) =>
+                          handleInputChange("cin", e.target.value)
+                        }
+                        disabled={!editing}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <BadgeIcon color="action" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        variant={editing ? "outlined" : "filled"}
+                      />
+                    </Box>
 
-          <Grid size={12}>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="h6" gutterBottom>
-              Preferences
-            </Typography>
-            <FormControlLabel
-              control={<Switch defaultChecked />}
-              label="Email Notifications"
-              disabled={!editing}
-            />
-          </Grid>
-         */}
-        </Grid>
+                    <Box sx={{ width: { xs: "100%", sm: "45%" } }}>
+                      <TextField
+                        fullWidth
+                        label="Matricule de voiture"
+                        value={profileData.carMatricule}
+                        onChange={(e) =>
+                          handleInputChange("carMatricule", e.target.value)
+                        }
+                        disabled={!editing}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <DriveEtaIcon color="action" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        variant={editing ? "outlined" : "filled"}
+                      />
+                    </Box>
 
-        <Dialog open={isDialogOpen} onClose={handleCloseDialog}>
-          <DialogTitle>Photo de Profile</DialogTitle>
-          <DialogContent>
-            <Typography variant="body2" sx={{ mb: 2 }}>
-              Choisissez une option pour mettre à jour votre photo de profile
-            </Typography>
-          </DialogContent>
-          <DialogActions sx={{ flexDirection: "column", gap: 1, p: 2 }}>
+                    <Box sx={{ width: { xs: "100%", sm: "45%" } }}>
+                      <TextField
+                        fullWidth
+                        label="Rôle"
+                        value={profileData.role}
+                        disabled
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <LockIcon color="action" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        variant="filled"
+                      />
+                    </Box>
+                  </>
+                )}
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
+      </Box>
+
+      {/* Dialog pour la photo de profil */}
+      <Dialog
+        open={isDialogOpen}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ bgcolor: "primary.main", color: "white" }}>
+          Photo de profil
+        </DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
+          <Typography variant="body2" sx={{ mb: 3 }}>
+            Choisissez une option pour mettre à jour votre photo de profil
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Button
               variant="contained"
               component="label"
-              fullWidth
               startIcon={<PhotoCamera />}
+              fullWidth
             >
-              Upload New Photo
+              Télécharger une nouvelle photo
               <input
                 type="file"
                 accept="image/*"
@@ -400,54 +571,21 @@ const Profile = () => {
                 hidden
               />
             </Button>
-
-            {previewUrl && (
-              <Button
-                variant="outlined"
-                color="error"
-                fullWidth
-                startIcon={<Delete />}
-                onClick={handleDeletePhoto}
-              >
-                Supprimer la Photo
-              </Button>
-            )}
-
-            <Button variant="text" onClick={handleCloseDialog} fullWidth>
+            <Button variant="outlined" onClick={handleCloseDialog} fullWidth>
               Annuler
             </Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* Hidden file input */}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          ref={fileInputRef}
-          style={{ display: "none" }}
-        />
-        {/* Action Buttons when editing */}
-        {editing && (
-          <Box
-            sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 4 }}
-          >
-            <Button
-              variant="outlined"
-              onClick={handleCancel}
-              sx={{
-                borderBlockColor: colors.primary[800],
-                "&:hover": { bgcolor: colors.primary[400] },
-              }}
-            >
-              <Typography color={colors.primary[300]}>Annuler</Typography>
-            </Button>
-            <Button variant="contained" onClick={handleSave}>
-              Enregisterer les échanges
-            </Button>
           </Box>
-        )}
-      </Paper>
+        </DialogContent>
+      </Dialog>
+
+      {/* Hidden file input */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        ref={fileInputRef}
+        style={{ display: "none" }}
+      />
     </Container>
   );
 };

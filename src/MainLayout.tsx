@@ -25,6 +25,10 @@ import TechPoints from "./technician-ui/pages/TechPoints";
 import InterventionShow from "./admin-ui/components/InterventionShow";
 import Aide from "./global/pages/Aide&Support";
 import ProfilePage from "./global/pages/ProfilePage";
+import NotificationPage from "./global/pages/NotificationPage";
+
+
+
 
 // Create a new layout component for pages with sidebar and topbar
 const MainLayout = () => {
@@ -47,7 +51,7 @@ const MainLayout = () => {
             path="/allInterventions/:interventionId"
             element={<InterventionShow />}
           />
-
+          <Route path="/notifications" element={<NotificationPage/>}/>
           <Route path="/clients" element={<ClientsInfos />}>
             <Route index element={<ClientList />} />
             <Route path=":clientCin" element={<ClientShow />} />

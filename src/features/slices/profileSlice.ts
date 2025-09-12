@@ -1,21 +1,12 @@
 // features/slices/profileSlice.ts
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import { getProfileData, editProfileData } from '../../data/profileData'; // Importez votre fonction existante
+import { getProfileData, editProfileData, type profileDataType } from '../../data/profileData'; // Importez votre fonction existante
 import type { RootState } from '../store';
 
-interface ProfileData {
-  id: string;
-  name: string;
-  email: string;
-  position: string;
-  avatar: string;
-  department: string;
-  phone?: string;
-  // ajoutez d'autres champs selon vos besoins
-}
+
 
 interface ProfileState {
-  data: ProfileData | null;
+  data: Partial<profileDataType> | null;
   loading: boolean;
   updating: boolean;
   error: string | null;
@@ -35,6 +26,7 @@ export const fetchProfile = createAsyncThunk(
   'profile/fetchProfile',
   async (email: string, { rejectWithValue }) => {
     try {
+      
       const response = await getProfileData(email); // Votre fonction existante
       return response;
     } catch (error:any) {
@@ -46,7 +38,7 @@ export const fetchProfile = createAsyncThunk(
 // Thunk pour mettre à jour les données du profil
 export const updateProfile = createAsyncThunk(
   'profile/updateProfile',
-  async (profileData: Partial<ProfileData>, { rejectWithValue, getState }) => {
+  async (profileData: Partial<profileDataType>, { rejectWithValue, getState }) => {
     try {
       const state = getState() as RootState;
       const email = state.user.email; // On suppose que vous avez l'email dans le user slice
@@ -86,7 +78,7 @@ export const profileSlice = createSlice({
       })
       .addCase(fetchProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state = action.payload;
+        state.data = action.payload;
       })
       .addCase(fetchProfile.rejected, (state, action) => {
         state.loading = false;

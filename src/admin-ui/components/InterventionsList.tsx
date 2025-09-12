@@ -211,8 +211,9 @@ const InterventionList = () => {
           setAdminInterventions(data);
         } else {
           const data = await getInterventionsByTechnician(technicianEmail);
+          console.log("technician data: ", data);
           const rawData=data.filter((data)=>data.status==='PENDING');
-          setTechInterventions(data);
+          setTechInterventions(rawData);
         }
         
       } catch (err) {

@@ -37,27 +37,57 @@ const Topbar = () => {
             borderRadius: "3px",
           }}
         >
-          <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
-          <IconButton type="button" sx={{ p: 1 }}>
-            <SearchIcon />
-          </IconButton>
+          
         </Box>
         <Box display="flex">
           <IconButton onClick={colorMode.toggleColorMode}>
             {theme.palette.mode === "dark" ? (
-              <LightModeOutlinedIcon />
+              <LightModeOutlinedIcon
+                sx={{
+                  fontSize: {
+                    xs: "20",
+                    sm: "25px",
+                    md: "28px",
+                    lg: "30px",
+                  },
+                }}
+              />
             ) : (
-              <DarkModeOutlinedIcon />
+              <DarkModeOutlinedIcon
+                sx={{
+                  fontSize: {
+                    xs: "20",
+                    sm: "25px",
+                    md: "28px",
+                    lg: "30px",
+                  },
+                }}
+              />
             )}
           </IconButton>
-          <IconButton>
-            <NotificationsOutlinedIcon />
-          </IconButton>
-          <IconButton>
-            <SettingsOutlinedIcon />
+          <IconButton component={Link} to="/notifications">
+            <NotificationsOutlinedIcon
+              sx={{
+                fontSize: {
+                  xs: "20",
+                  sm: "25px",
+                  md: "28px",
+                  lg: "30px",
+                },
+              }}
+            />
           </IconButton>
           <IconButton component={Link} to="/profile">
-            <PersonOutlineOutlinedIcon />
+            <PersonOutlineOutlinedIcon
+              sx={{
+                fontSize: {
+                  xs: "20",
+                  sm: "25px",
+                  md: "30px",
+                  lg: "30px",
+                },
+              }}
+            />
           </IconButton>
         </Box>
       </Box>

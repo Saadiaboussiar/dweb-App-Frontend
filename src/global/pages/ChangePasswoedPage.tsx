@@ -14,10 +14,11 @@ import ColorModeSelect from "../../shared-theme/ColorModeSelect";
 import AppTheme from "../../shared-theme/AppTheme";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { extractRolesFromToken } from "../../utils/roleUtils";
 import { setCredentials } from "../../features/slices/authSlice";
 import { authService } from "../../service/authService";
+import { selectVerifyCode } from "../../features/slices/verifyCodeSlice";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -61,11 +62,14 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
   },
 }));
 
+
 interface FormValues {
-  currentPassword: string;
+  currentPassword?: string;
   newPassword: string;
   confirmPassword: string;
 }
+
+
 
 interface ChangePasswordResponse {
   technicianId: number;
@@ -86,9 +90,16 @@ export default function ChangePasswordPage(props: {
   const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = React.useState("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [successMessage, setSuccessMessage] = React.useState("");
-
+  const [response,setResponse]=React.useState<ChangePasswordResponse | null>(null);
+  
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const verifyCode=useSelector(selectVerifyCode);
+  const email=sessionStorage.getItem("userEmail");
+
+  console.log("verifyCode:", verifyCode)
+
+  const token=sessionStorage.getItem("access_token");
 
   const validateInputs = () => {
     const currentPassword = document.getElementById(
@@ -103,14 +114,16 @@ export default function ChangePasswordPage(props: {
 
     let isValid = true;
 
-    if (!currentPassword.value) {
+    if (token){
+      
+      if (!currentPassword.value) {
       setCurrentPasswordError(true);
       setCurrentPasswordErrorMessage("Le mot de passe actuel est requis.");
       isValid = false;
     } else {
       setCurrentPasswordError(false);
       setCurrentPasswordErrorMessage("");
-    }
+    }}
 
     if (!newPassword.value || newPassword.value.length < 6) {
       setPasswordError(true);
@@ -150,15 +163,15 @@ export default function ChangePasswordPage(props: {
     const formData = new FormData(event.currentTarget);
 
     const data: FormValues = {
-      currentPassword: formData.get("currentPassword") as string,
-      newPassword: formData.get("newPassword") as string,
+      newPassword: formData.get("newPassword") as string ,
       confirmPassword: formData.get("confirmPassword") as string,
     };
 
+    
     try {
-      const token = sessionStorage.getItem("access_token");
-
-      const response = await axios.post<ChangePasswordResponse>(
+      
+      if(token){
+      const response = await axios.put<ChangePasswordResponse>(
         "http://localhost:9090/auth/change-password",
         data, 
         {
@@ -168,23 +181,36 @@ export default function ChangePasswordPage(props: {
           },
         }
       );
+      setResponse(response.data);
+    }
+    else{
 
-      const responseData: ChangePasswordResponse = response.data;
+      const response = await axios.put<ChangePasswordResponse>(
+        `http://localhost:9090/auth/forgot-pw/${email}`,
+        data, 
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setResponse(response.data);
+    }
 
-      if (responseData.success) {
-        setSuccessMessage(responseData.message || "Mot de passe changé avec succès!");
+      if (response?.success) {
+        setSuccessMessage(response.message || "Mot de passe changé avec succès!");
 
 
         // Update tokens if provided
-        if (responseData.accessToken && responseData.refreshToken) {
-          const roles: string[] = extractRolesFromToken(responseData.accessToken);
+        if (response.accessToken && response.refreshToken) {
+          const roles: string[] = extractRolesFromToken(response.accessToken);
           
           authService.removeTokens();
           
           dispatch(
             setCredentials({
-              token: responseData.accessToken,
-              refreshToken: responseData.refreshToken,
+              token: response.accessToken,
+              refreshToken: response.refreshToken,
             })
           );
 
@@ -196,6 +222,8 @@ export default function ChangePasswordPage(props: {
           navigate("/dashboard", { replace: true });
         }, 2000);
       }
+     
+
     } catch (error: any) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -224,7 +252,7 @@ export default function ChangePasswordPage(props: {
         <ColorModeSelect
           sx={{ position: "fixed", top: "1rem", right: "1rem" }}
         />
-        <Card variant="outlined" sx={{ height: "100%" }}>
+        <Card variant="outlined" sx={{ height: token===undefined ? "90%" : "70%" }}>
           <Typography
             variant="h4"
             sx={{ width: "100%", fontWeight: "bold", textAlign: "center", mb: 2 }}
@@ -249,7 +277,10 @@ export default function ChangePasswordPage(props: {
               gap: 2,
             }}
           >
-            <FormControl>
+
+            {token===undefined &&
+
+            (<FormControl>
               <FormLabel htmlFor="current-password">Mot de passe actuel</FormLabel>
               <TextField
                 error={currentPasswordError}
@@ -263,7 +294,7 @@ export default function ChangePasswordPage(props: {
                 fullWidth
                 variant="outlined"
               />
-            </FormControl>
+            </FormControl>)}
             
             <FormControl>
               <FormLabel htmlFor="new-password">Nouveau mot de passe</FormLabel>

@@ -4,7 +4,7 @@ import Tooltip, {
   tooltipClasses,
 } from "@mui/material/Tooltip";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { tokens } from "../../shared-theme/theme";
 import { Sidebar as ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
@@ -25,9 +25,10 @@ import {
   selectIsCollapsed,
   toogleSidebar,
 } from "../../features/slices/layoutSlice";
-import type { RootState } from "features/store";
 import { useRoles } from "../../hooks/useRoles";
 import { selectRoles, selectUser } from "../../features/slices/authSlice";
+import { selectProfile } from "../../features/slices/profileSlice";
+import { getProfileData } from "../../data/profileData";
 const BigTooltip = styled(
   ({ className, ...props }: TooltipProps & { className?: string }) => (
     <Tooltip {...props} classes={{ popper: className }} />
@@ -90,13 +91,36 @@ const Sidebar = () => {
 
   const user = useSelector(selectUser);
   const roles = useSelector(selectRoles);
-  const email=sessionStorage.getItem("userEmail");
-
-  
+// Dans votre composant, ajoutez ceci pour debugger
+const entireState = useSelector(state => state);
+console.log('Entire Redux state:', entireState);
+  console.log("profile: ",profile);
 console.log("roles: ",roles);
 console.log("user: ",user);
   const { isAdmin } = useRoles();
   
+  const email=sessionStorage.getItem("userEmail");
+  
+    useEffect(() => {
+      const fetchProfileData = async () => {
+        try {
+  
+          const data = await getProfileData(email ?? "");
+          
+          if (data) {
+            
+            setProfilePhoto(data.profileUrl);
+          }
+  
+        } catch (err) {
+          
+          console.error("Failed to load profile data",err);
+        } 
+      };
+      fetchProfileData();
+    }, [email]);
+
+
   return (
     <Box
       sx={{
@@ -196,7 +220,7 @@ console.log("user: ",user);
                   alt="profile-user"
                   width="100px"
                   height="100px"
-                  src={profile}
+                  src={profilePhoto}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
               </Box>

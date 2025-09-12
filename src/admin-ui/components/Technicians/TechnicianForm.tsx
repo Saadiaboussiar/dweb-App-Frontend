@@ -210,6 +210,18 @@ export default function TechnicianForm(props: TechnicianFormProps) {
               fullWidth
             />
           </Grid>
+          <Grid size={{ xs: 12, sm: 6 }} sx={{ display: "flex" }}>
+            <TextField
+              type="text"
+              value={formValues.carMatricule ?? ""}
+              onChange={handleTextFieldChange}
+              name="carMatricule"
+              label="Matricule de voiture"
+              error={!!formErrors.carMatricule}
+              helperText={formErrors.carMatricule ?? " "}
+              fullWidth
+            />
+          </Grid>
         </Grid>
       </FormGroup>
       <Stack direction="row" spacing={2} justifyContent="space-between">

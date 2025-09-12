@@ -281,6 +281,12 @@ export default function TechnicianList() {
         type: "string",
       },
       {
+        field: "carMatricule",
+        headerName: "Matricule de Voiture",
+        width: isCollapsed ? 110 : 100,
+        type: "string",
+      },
+      {
         field: "actions",
         type: "actions",
         flex: 1, // Add explicit width
@@ -349,7 +355,7 @@ export default function TechnicianList() {
           </Stack>
         }
       >
-        <Box sx={{ flex: 1, width: "100%" }}>
+        <Box sx={{ flex: 1, width: "105%" }}>
           {error ? (
             <Box sx={{ flexGrow: 1 }}>
               <Alert severity="error">{error.message}</Alert>

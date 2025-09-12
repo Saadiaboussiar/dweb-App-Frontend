@@ -8,7 +8,7 @@ const TechInterventions = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header
           title="VOS INTERVENTIONS"
-          subTitle="Consultez la liste de toutes vos interventions déclarées"
+          subTitle="Consultez la liste de vos interventions déclarées qui sont en status en attente"
         />
       </Box>
       <Box >

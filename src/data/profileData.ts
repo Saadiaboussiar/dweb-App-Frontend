@@ -6,7 +6,8 @@ export type profileDataType={
   phoneNumber: string;
   cin: string;
   profileUrl:string;
-  role:string
+  carMatricule:string
+  role:string;
 }
 
 const UNDEFINED_VALUES:profileDataType={
@@ -15,6 +16,7 @@ const UNDEFINED_VALUES:profileDataType={
     phoneNumber:"undefined",
     cin:"undefined",
     profileUrl:"",
+    carMatricule:"undefined",
     role:""
 }
 
