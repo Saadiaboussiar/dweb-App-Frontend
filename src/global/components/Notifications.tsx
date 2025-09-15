@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -33,72 +33,56 @@ import useNotifications from "../../hooks/useNotifications/useNotifications";
 import { tokens } from "../../shared-theme/theme";
 import { useSelector } from "react-redux";
 import * as layoutSlice from "../../features/slices/layoutSlice";
+import {
+  deleteAllNotifications,
+  getNotifications,
+  markNotificationAsRead,
+  type NotificationResponse,
+} from "../../data/notifications";
+import { useNavigate } from "react-router-dom";
 
-// Define the Notification type
-interface AppNotification {
-  id: string;
-  title: string;
-  message: string;
-  timestamp: Date;
-  isRead: boolean;
-  type: "info" | "warning" | "success" | "mention";
+
+type isRead={
+  notificationId:number,
+  read:boolean,
 }
 
-// Mock notification data
-const initialNotifications: AppNotification[] = [
-  {
-    id: "1",
-    title: "System Update",
-    message: "A new system update is available. Please update your app.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 5),
-    isRead: false,
-    type: "info",
-  },
-  {
-    id: "2",
-    title: "Security Alert",
-    message: "Unusual login attempt detected from a new device.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-    isRead: false,
-    type: "warning",
-  },
-  {
-    id: "3",
-    title: "Message Received",
-    message: "You have a new message from Sarah Johnson.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    isRead: true,
-    type: "info",
-  },
-  {
-    id: "4",
-    title: "Task Completed",
-    message: "Your weekly report has been successfully generated.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5),
-    isRead: true,
-    type: "success",
-  },
-  {
-    id: "5",
-    title: "You were mentioned",
-    message: "John mentioned you in a comment on the project dashboard.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    isRead: false,
-    type: "mention",
-  },
-];
 
 const Notifications: React.FC = () => {
-  const [notifications, setNotifications] =
-    useState<AppNotification[]>(initialNotifications);
+  const [notifications, setNotifications] = useState<NotificationResponse[]>(
+    []
+  );
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
   const { show: showToast } = useNotifications();
   const isCollapsed = useSelector(layoutSlice.selectIsCollapsed);
+  const [loading,setLoading]=useState(false)
+  const [isRead,setIsRead]=useState<boolean>(false);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const email=sessionStorage.getItem("userEmail");
+  const navigate=useNavigate();
+
+    useEffect(() => {
+      const fetchProfileData = async () => {
+        try {
+          setLoading(true);
+          const data = await getNotifications(email ?? "");
+  
+          if (data) {
+            setNotifications(data);
+          }
+        } catch (err) {
+          console.log("couldnt fetch notifications ",err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchProfileData();
+    }, [email,isRead]);
 
   const toggleShowUnreadOnly = () => {
+    
     setShowUnreadOnly(!showUnreadOnly);
     showToast(
       showUnreadOnly
@@ -106,25 +90,40 @@ const Notifications: React.FC = () => {
         : "Showing only unread notifications",
       { severity: "info", autoHideDuration: 2000 }
     );
+
   };
 
+
   // Mark a notification as read
-  const markAsRead = (id: string) => {
+  const markAsRead = async (id: number) => {
+    
     setNotifications(
       notifications.map((notification) =>
-        notification.id === id
+        notification?.id === id
           ? { ...notification, isRead: true }
           : notification
       )
     );
-
+    
     const notification = notifications.find((n) => n.id === id);
-    if (notification) {
-      showToast(`Marked as read: ${notification.title}`, {
+    setIsRead(true);
+    const response = await markNotificationAsRead(notification?.id ?? 0);
+
+    if (response != null && response != undefined) {
+      
+      showToast(`Marked as read: ${notification?.title}`, {
         severity: "success",
         autoHideDuration: 2000,
       });
+
+      if(notification?.type==="INTERVENTION_REJECTED"){
+        const interventionId=notification.interventionId;
+        
+        navigate(`/correctIntervention/${interventionId}`)
+      }
+
     }
+
   };
 
   // Mark all notifications as read
@@ -143,25 +142,32 @@ const Notifications: React.FC = () => {
   };
 
   // Delete a notification
-  const deleteNotification = (id: string) => {
+  const deleteNotification = async (id: number) => {
+
     const notification = notifications.find((n) => n.id === id);
     setNotifications(
       notifications.filter((notification) => notification.id !== id)
     );
-
-    if (notification) {
-      showToast(`Deleted notification: ${notification.title}`, {
-        severity: "info",
-        autoHideDuration: 2000,
-      });
+    if (notification?.read ) {
+      const response = await deleteNotification(id);
+      console.log("delete response",response);
+      if (response != undefined && response != null) {
+        showToast(`Deleted notification: ${notification?.title}`, {
+          severity: "info",
+          autoHideDuration: 2000,
+        });
+      }
     }
+
   };
 
   // Clear all notifications
-  const clearAllNotifications = () => {
+  const clearAllNotifications = async () => {
     if (notifications.length === 0) return;
 
+    const response = await deleteAllNotifications();
     setNotifications([]);
+
     showToast("All notifications cleared", {
       severity: "info",
       autoHideDuration: 2000,
@@ -170,38 +176,27 @@ const Notifications: React.FC = () => {
 
   // Get filtered notifications based on the filter setting
   const filteredNotifications = showUnreadOnly
-    ? notifications.filter((notification) => !notification.isRead)
+    ? notifications.filter((notification) => !notification.read)
     : notifications;
 
   // Count unread notifications
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   // Get the appropriate icon based on notification type
-  const getNotificationIcon = (type: AppNotification["type"]) => {
+  const getNotificationIcon = (type: NotificationResponse["type"]) => {
     switch (type) {
-      case "warning":
+      case "INTERVENTION_REJECTED":
         return <CloseOutlinedIcon color="error" />;
-      case "success":
+      case "INTERVENTION_VALIDATED":
         return <CheckIcon color="success" />;
-      case "mention":
-        return <AccountIcon color="primary" />;
       default:
         return <InfoIcon color="info" />;
     }
+
   };
 
-  // Format the timestamp to a readable format
-  const formatTime = (date: Date) => {
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-    if (diffInSeconds < 60) return "Just now";
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400)
-      return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
-  };
-
+  console.log("notifications: ",notifications)
+  notifications.map((notification)=>console.log("notif isRead",notification.read))
   return (
     <Container maxWidth="md" sx={{ py: 4, bgcolor: colors.primary[500] }}>
       <Box
@@ -285,7 +280,7 @@ const Notifications: React.FC = () => {
                 <ListItem alignItems="flex-start">
                   {/* Read status icon */}
                   <ListItemIcon sx={{ minWidth: 40 }}>
-                    {notification.isRead ? (
+                    {notification.read ? (
                       <ReadIcon sx={{ color: colors.greenAccent[300] }} />
                     ) : (
                       <UnreadIcon sx={{ color: colors.redAccent[300] }} />
@@ -303,7 +298,7 @@ const Notifications: React.FC = () => {
                       <Typography
                         variant="subtitle1"
                         sx={{
-                          fontWeight: notification.isRead ? "normal" : "bold",
+                          fontWeight: notification.read ? "normal" : "bold",
                         }}
                       >
                         {notification.title}
@@ -321,7 +316,7 @@ const Notifications: React.FC = () => {
                           {notification.message}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {formatTime(notification.timestamp)}
+                          {notification.timestamp}
                         </Typography>
                       </>
                     }
@@ -329,11 +324,11 @@ const Notifications: React.FC = () => {
 
                   {/* Action buttons */}
                   <Box>
-                    {!notification.isRead && (
+                    {!notification.read && (
                       <IconButton
                         edge="end"
                         aria-label="mark as read"
-                        onClick={() => markAsRead(notification.id)}
+                        onClick={() => markAsRead(notification?.id ?? 0)}
                         sx={{ mr: 1 }}
                         title="Mark as read"
                       >
@@ -343,7 +338,7 @@ const Notifications: React.FC = () => {
                     <IconButton
                       edge="end"
                       aria-label="delete"
-                      onClick={() => deleteNotification(notification.id)}
+                      onClick={() => deleteNotification(notification?.id ?? 0)}
                       title="Delete notification"
                     >
                       <DeleteIcon />
@@ -364,12 +359,12 @@ const Notifications: React.FC = () => {
                 sx={{ fontSize: 48, color: "text.secondary", mb: 1 }}
               />
               <Typography variant="h6" color="text.secondary">
-                No notifications
+                Aucun notifications
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 {showUnreadOnly
-                  ? "You don't have any unread notifications"
-                  : "You're all caught up!"}
+                  ? "Vous n’avez aucune notification non lue."
+                  : "Vous êtes à jour !!"}
               </Typography>
             </Box>
           )}

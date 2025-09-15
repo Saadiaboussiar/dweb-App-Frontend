@@ -33,7 +33,7 @@ export type InterventionEssentials={
   status:InterventionStatus
 }
 
-export const getFrenchName=(status:string)=>{
+export const getFrenchName=(status:string | undefined)=>{
   
   switch(status){
     case "PENDING": 
@@ -42,7 +42,7 @@ export const getFrenchName=(status:string)=>{
       return "VALIDÉ"
     case "REJECTED":
       return "REJETÉ"
-    default: 
+    case undefined: 
       return "non spécifié"
   }
 }
@@ -92,6 +92,7 @@ export const getAllInterventions=async ():Promise<Intervention[]>=>{
 
 export async function getOneIntervention(id: number) {
   const intervention = (await getAllInterventions()).find((t) => t.interId === id);
+
   if (!intervention) throw new Error("Intervention not found");
   return intervention;
 }
@@ -123,3 +124,8 @@ export const validateIntervetion=async (interId:number, isValid:boolean)=>{
   }
 } 
  
+export const editIntervention=async (interventionId:number, data:Intervention)=>{
+
+  const response=await api.put(`/intervention/editIntervention/${interventionId}`,data);
+  
+}

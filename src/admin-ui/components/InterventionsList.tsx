@@ -61,7 +61,7 @@ const baseHeadCellsTech: readonly HeadCellTech[] = [
   { id: "startTime", label: "Heure début", filterable: true },
   { id: "finishTime", label: "Heure fin", filterable: true },
   { id: "duration", label: "Durée", filterable: true },
-  { id: "photo", label: "Photo" },
+  { id: "status", label: "Status" },
 ] as const;
 
 const baseHeadCellsAdmin: readonly HeadCellAdmin[] = [
@@ -212,7 +212,7 @@ const InterventionList = () => {
         } else {
           const data = await getInterventionsByTechnician(technicianEmail);
           console.log("technician data: ", data);
-          const rawData=data.filter((data)=>data.status==='PENDING');
+          const rawData=data.filter((data)=>data.status==='PENDING' || data.status==='REJECTED');
           setTechInterventions(rawData);
         }
         
@@ -421,19 +421,17 @@ const InterventionList = () => {
                       </TableCell>
                       <TableCell>{(inter as Intervention).duration}</TableCell>
                       <TableCell>
-                        {(inter as Intervention).interUrl && (
-                          <IconButton
-                            onClick={() =>
-                              handleOpenImageDialog(
-                                (inter as Intervention).interUrl
-                              )
-                            }
-                            color="primary"
-                            aria-label="view photo"
-                          >
-                            <ImageIcon />
-                          </IconButton>
-                        )}
+                        {<span
+                          style={{
+                            color: getStatusColor(
+                              (inter as InterventionEssentials).status
+                            ),
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {getFrenchName((inter as InterventionEssentials).status)}
+                        </span>}
+
                       </TableCell>
                     </>
                   )}

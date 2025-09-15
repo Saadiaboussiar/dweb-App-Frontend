@@ -46,7 +46,7 @@ const InterventionInfos: React.FC<Props> = ({ intervention }) => {
           >
             {Object.entries(intervention).map(
               ([key, value]) =>
-                formatLabel(key) != "interUrl" && (
+                formatLabel(key) != "interUrl" && formatLabel(key) != "status" && (
                   <TextField
                     key={key}
                     label={

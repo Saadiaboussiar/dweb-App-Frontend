@@ -16,7 +16,11 @@ import { useEffect, useState } from "react";
 import { Button, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../shared-theme/theme";
 import useNotifications from "../../hooks/useNotifications/useNotifications";
-import { sendNotification, type NotificationRequest } from "data/notifications";
+import {
+  sendNotification,
+  type NotificationRequest,
+  type NotificationStatus,
+} from "../../data/notifications";
 
 const InterventionDetails = () => {
   const theme = useTheme();
@@ -80,22 +84,36 @@ const InterventionDetails = () => {
 
   const notifications = useNotifications();
 
+
   const handleValidation = async (
     interId: number | undefined,
     isValid: boolean
   ) => {
     if (interId != undefined) {
-      const formData = new FormData();
-      formData.append("clientName", notification.clientName);
-      formData.append("interventionId", notification.interventionId.toString());
-      formData.append("type", notification.type);
+      const type: NotificationStatus = isValid
+        ? "INTERVENTION_VALIDATED"
+        : "INTERVENTION_REJECTED";
 
+      const notificationData :NotificationRequest= {
+        clientName: intervention?.client ?? "",
+        interventionId: intervention?.interId ?? 0,
+        type: type ,
+      };
       const response1 = await validateIntervetion(interId, isValid);
-      const response2=await sendNotification(technician?.email ?? "",formData);
+
+      const response2 = await sendNotification(
+        technician?.email ?? "",
+        notificationData
+      );
 
       console.log("reponse de validation: ", response1.data);
 
-      if (response1 != null && response1 != undefined && response2 != null && response2 != undefined ) {
+      if (
+        response1 != null &&
+        response1 != undefined &&
+        response2 != null &&
+        response2 != undefined
+      ) {
         notifications.show(
           isValid ? "Intervetion est validé." : "Intervention est rejeté.",
           {
@@ -112,8 +130,6 @@ const InterventionDetails = () => {
     } else {
       alert("l'intervention n'est pas difiner");
     }
-
-
   };
 
   return (
