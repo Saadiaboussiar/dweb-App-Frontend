@@ -15,6 +15,8 @@ export type Intervention = {
   interUrl:string | null;
   status?:InterventionStatus;
   ville:string;
+  updated:boolean;
+  updateDateTime:string;
 };
 
 export type InterventionStatus = 
@@ -30,7 +32,9 @@ export type InterventionEssentials={
   date:string,
   submittedAt:string;
   interId: number;
-  status:InterventionStatus
+  status:InterventionStatus;
+  updated:boolean;
+  updateDateTime: String;
 }
 
 export const getFrenchName=(status:string | undefined)=>{

@@ -28,7 +28,7 @@ const InterventionsCards = () => {
       };
       fetchInterventions();
     }, []);
-
+console.log("")
   return (
     <Box m="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -56,7 +56,8 @@ const InterventionsCards = () => {
               maxWidth: "350px",
             }}
           >
-            {item.status==='PENDING' && 
+
+            {(item.status==='PENDING') && 
 
               <InterCard
               interId={item.interId}
@@ -66,6 +67,8 @@ const InterventionsCards = () => {
               submittedAt={item.submittedAt}
               date={item.date}
               status={item.status}
+              updated={item.updated}
+              updateDateTime={item.updateDateTime}
             />
 
             } 

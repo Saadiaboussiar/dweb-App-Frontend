@@ -43,6 +43,7 @@
     "react-router-dom": "^7.7.0",
     "react-zoom-pan-pinch": "^3.7.0",
     "recharts": "^3.1.2",
+    "redux": "^5.0.1",
     "yup": "^1.7.0"
   },
   "devDependencies": {
