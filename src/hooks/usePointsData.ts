@@ -1,8 +1,6 @@
 // hooks/usePointsData.ts
 import { useState, useEffect, useMemo } from 'react';
 import { type TechnicianBonus } from '../data/technicianPoints';
-import { useSelector } from 'react-redux';
-import { selectTechnicianId } from '../features/slices/technicianAuthSlice';
 import api from '../Interceptors/api';
 
 export type MonthlyData = TechnicianBonus;
@@ -11,7 +9,7 @@ export const usePointsData = () => {
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const techId = useSelector(selectTechnicianId);
+  const techId = Number(sessionStorage.getItem("userId"))
 
   console.log('📊 usePointsData - Initial state:', { techId, loading, error, dataCount: monthlyData.length });
 
@@ -26,34 +24,107 @@ export const usePointsData = () => {
   }, [monthlyData]);
 
   // Updated fetchCurrentPointsData with better error handling
-  const fetchCurrentData = async (techId: number): Promise<TechnicianBonus | null> => {
-    console.log(`📡 fetchCurrentData called for techId: ${techId}`);
-    try {
-      const endpoint = `/technicianMonthlySummary/current/${techId}`;
-      console.log(`🌐 Making API call to: ${endpoint}`);
-      
-      const response = await api.get(endpoint);
-      console.log('✅ fetchCurrentData response:', response.data);
-      
-      return response.data;
-      
-    } catch (error: any) {
-      console.error('❌ Error in fetchCurrentData:', {
-        techId,
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-      
-      // If 404 or no data, return null instead of throwing
-      if (error.response?.status === 404) {
-        console.log('⚠️ No current data found (404)');
-        return null;
-      }
-      
-      throw error;
+  // In your fetchCurrentData function, add detailed logging:
+
+const fetchCurrentData = async (techId: number): Promise<TechnicianBonus | null> => {
+  console.log(`📡 fetchCurrentData called for techId: ${techId}`);
+  console.log(`📱 TechId type: ${typeof techId}, value: ${techId}`);
+  
+  try {
+    const endpoint = `/technicianMonthlySummary/current/${techId}`;
+    console.log(`🌐 Making API call to endpoint: ${endpoint}`);
+    
+    // Log the full request details
+    console.log('🔧 Request config:', {
+      baseURL: api.defaults.baseURL,
+      headers: api.defaults.headers,
+      withCredentials: api.defaults.withCredentials
+    });
+    
+    // Make the API call
+    const response = await api.get(endpoint);
+    
+    console.log('✅ API Response received:');
+    console.log('   Status:', response.status);
+    console.log('   Status Text:', response.statusText);
+    console.log('   Headers:', response.headers);
+    console.log('   Full Response:', response);
+    
+    // Check the exact structure of the response
+    console.log('📊 Response data analysis:', {
+      type: typeof response.data,
+      isArray: Array.isArray(response.data),
+      keys: response.data ? Object.keys(response.data) : 'null',
+      fullData: JSON.stringify(response.data, null, 2)
+    });
+    
+    // Check if response.data is nested
+    if (response.data && response.data.data) {
+      console.log('⚠️ Response has nested data property:', response.data.data);
     }
-  };
+    
+    // Handle different response structures
+    let data = response.data;
+    
+    // If Spring Boot returns wrapped response
+    if (data && data.body) {
+      console.log('🔍 Response has "body" property');
+      data = data.body;
+    }
+    
+    if (data && data.data) {
+      console.log('🔍 Response has "data" property');
+      data = data.data;
+    }
+    
+    console.log('📦 Final data to process:', data);
+    
+    // Transform database fields (snake_case) to camelCase if needed
+    const transformedData: TechnicianBonus = {
+      id: data.id || data.technician_id || 0,
+      technicianId: data.technicianId || data.technician_id,
+      monthYear: data.monthYear || data.month_year,
+      totalPoints: data.totalPoints || data.total_points || 0,
+      totalBonus: data.totalBonus || data.total_bonus || "0.00",
+      interventionsCount: data.interventionsCount || data.interventions_count || 0,
+      lastUpdated: data.lastUpdated || data.last_updated
+    };
+    
+    console.log('🔄 Transformed data structure:', {
+      keys: Object.keys(transformedData),
+      values: transformedData
+    });
+    
+    return transformedData;
+    
+  } catch (error: any) {
+    console.error('❌ fetchCurrentData ERROR:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      response: {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        headers: error.response?.headers
+      },
+      request: error.request,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers,
+        baseURL: error.config?.baseURL
+      }
+    });
+    
+    if (error.response?.status === 404) {
+      console.log('⚠️ 404 - Endpoint not found or no data');
+      return null;
+    }
+    
+    throw error;
+  }
+};
 
   // Updated fetchMonthPointsData with better error handling
   const fetchMonthData = async (month: number, year: number, techId: number): Promise<TechnicianBonus | null> => {
@@ -230,6 +301,8 @@ export const usePointsData = () => {
 
     loadAllData();
   }, [techId]);
+
+  console.log("monthlyData from hook", monthlyData)
 
   // Helper function to get data for a specific month
   const getDataForMonth = (monthYear: string) => {

@@ -418,7 +418,7 @@ const PointsDash = () => {
               </Typography>
             </Box>
             <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              ${currentBonus.toFixed(2)}
+              {currentBonus.toFixed(2)} DH
             </Typography>
             <Typography variant="body2" color="textSecondary">
               Basé sur {currentPoints.toLocaleString()} points
@@ -450,7 +450,7 @@ const PointsDash = () => {
               {getTotalInterventions()} interventions
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              ${getTotalBonus()} total bonus
+              {getTotalBonus()}DH total bonus 
             </Typography>
           </CardContent>
         </Card>
@@ -513,7 +513,7 @@ const PointsDash = () => {
               {getAveragePoints().toLocaleString()} points
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              ${getAverageBonus()} bonus moyen
+              {getAverageBonus()}DH bonus moyen
             </Typography>
           </CardContent>
         </Card>

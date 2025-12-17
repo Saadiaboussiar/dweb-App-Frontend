@@ -26,6 +26,7 @@ import { setCredentials } from "../../features/slices/authSlice";
 import { jwtDecode } from "jwt-decode";
 import { authService } from "../../service/authService";
 import { setUser } from "../../features/slices/userSlice";
+import api from "../../Interceptors/api";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -89,7 +90,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-
+ 
   const navigate = useNavigate();
 
   const dispatch = useDispatch<AppDispatch>();
@@ -176,11 +177,24 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
         })
       );
 
-     
-      dispatch(setUser({ 
+      console.log("email from login: ",userEmail)
+
+      try{
+        const resp= api.get(`/user/userId/${userEmail}`)
+        const fetchedId=(await resp).data
+        
+        dispatch(setUser({ 
+        id:fetchedId || 0,
         email:userEmail,
         role: response.data.role
       }));
+        
+      }catch(error){
+        console.log("couldnt fetch user id ", error)
+      }
+     
+
+      
     
 
       console.log("User logged in:", data.email);
