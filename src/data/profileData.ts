@@ -1,6 +1,7 @@
 import api from "../Interceptors/api";
 
 export type profileDataType={
+  userId:number;
   fullName: string;
   email: string;
   phoneNumber: string;
@@ -11,6 +12,7 @@ export type profileDataType={
 }
 
 const UNDEFINED_VALUES:profileDataType={
+    userId:0,
     fullName:"undefined",
     email:"undefined",
     phoneNumber:"undefined",

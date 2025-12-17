@@ -15,7 +15,6 @@ api.interceptors.request.use(
 
         const token=sessionStorage.getItem('access_token');
 
-        console.log("your access token: ",token);
         
         if(token){
             config.headers.Authorization=`Bearer ${token}`;

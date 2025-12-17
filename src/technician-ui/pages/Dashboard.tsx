@@ -1,15 +1,18 @@
 import Box from "@mui/material/Box";
 import Header from "../../global/components/Header";
+import TechnicianDashboard from "../Components/DashboardComp";
 
 const TechDashboard = () => {
   return (
     <>
       <Box m="20px">
-        <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box  alignItems="center">
           <Header
             title="TABLEAU DE BORD"
-            subTitle="Bienvenue sur votre Tableau de bord"
+            subTitle="Vue d'ensemble de vos performances, points et statistiques d'intervention
+"
           />
+          <TechnicianDashboard />
         </Box>
       </Box>
     </>

@@ -22,6 +22,7 @@ const initialState: ProfileState = {
 };
 
 // Thunk pour récupérer les données du profil
+
 export const fetchProfile = createAsyncThunk(
   'profile/fetchProfile',
   async (email: string, { rejectWithValue }) => {
