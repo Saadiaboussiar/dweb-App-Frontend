@@ -1,14 +1,16 @@
 import Box from "@mui/material/Box";
 import Header from "../../../global/components/Header";
+import ClientReportsDashboard from "../../components/clients/reportComp";
 
 const ClintsReports = () => {
   return (
     <Box m="20px">
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Box justifyContent="space-between" alignItems="center">
         <Header
           title="RAPORTS DES CLIENTS"
-          subTitle="Consultez les données détaillées sur chaque client"
+          subTitle="Génération de rapports détaillés par client avec métriques d'efficacité"
         />
+        <ClientReportsDashboard/>
       </Box>
     </Box>
   );
