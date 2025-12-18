@@ -5,10 +5,10 @@ import ClientRentabiliteDashboard from "../../components/clients/clientAnalysisC
 const ClientsAnalysis = () => {
   return (
     <Box m="20px">
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Box justifyContent="space-between" alignItems="center">
         <Header
           title="LA RENTABILITE DES CLIENTS"
-          subTitle="Analysez la valeur et la performance de chaque client"
+          subTitle="Analyse de l'efficacité par client, ville et période (basé sur les km parcourus)"
         />
         <ClientRentabiliteDashboard />
       </Box>
