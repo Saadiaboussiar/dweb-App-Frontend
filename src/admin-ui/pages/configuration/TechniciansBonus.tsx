@@ -8,7 +8,7 @@ const TechniciansBonus = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header
           title="LES BONUS DES TECHNICIENS"
-          subTitle="Découvrez tous les avantages et récompenses pour nos techniciens"
+          subTitle="Suivi des points, niveaux et récompenses des techniciens"
         />
       </Box>
       <Box>
