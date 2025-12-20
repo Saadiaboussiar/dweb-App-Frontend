@@ -9,7 +9,7 @@ const Dashboard: React.FC = () => {
       <Box justifyContent="space-between" alignItems="center">
         <Header
           title="TABLEAU DE BORD"
-          subTitle="Bienvenue sur votre Tableau de bord"
+          subTitle="Tableau de bord pour une analyse complète de la rentabilité des techniciens et clients"
         />
         <AdminAnalyticsDashboard/>
       </Box>

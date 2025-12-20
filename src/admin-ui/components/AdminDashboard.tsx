@@ -107,7 +107,7 @@ import {
   ComposedChart,
 } from "recharts";
 
-// Interfaces basées sur ton backend (garder les mêmes interfaces)
+// Interfaces basées sur ton backend
 interface Technician {
   id: number;
   name: string;
@@ -212,6 +212,24 @@ interface MonthlyPerformance {
   profitMargin: number;
 }
 
+interface GlobalStats {
+  totalTechnicians: number;
+  totalClients: number;
+  totalInterventions: number;
+  totalRewards: number;
+  totalTransportCost: number;
+  totalProfit: number;
+  avgTechnicianScore: number;
+  avgClientEfficiency: number;
+  totalKm: number; // Ajouté pour résoudre l'erreur
+}
+
+interface PieDataPoint {
+  name: string;
+  value: number;
+  color: string;
+}
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -259,13 +277,9 @@ const AdminRentabiliteDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedVille, setSelectedVille] = useState<string>("toutes");
   const [periode, setPeriode] = useState<string>("mois");
-  const [dateRange, setDateRange] = useState({
-    start: "",
-    end: ""
-  });
   
-  // Stats globales calculées
-  const [globalStats, setGlobalStats] = useState({
+  // Stats globales calculées avec l'interface correcte
+  const [globalStats, setGlobalStats] = useState<GlobalStats>({
     totalTechnicians: 0,
     totalClients: 0,
     totalInterventions: 0,
@@ -274,6 +288,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
     totalProfit: 0,
     avgTechnicianScore: 0,
     avgClientEfficiency: 0,
+    totalKm: 0,
   });
 
   const isCollapsed = useSelector(selectIsCollapsed);
@@ -360,6 +375,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
       const totalTechRewards = enrichedTechnicians.reduce((sum, tech) => sum + tech.totalRewards, 0);
       const totalTransportCost = clientsData.reduce((sum, client) => sum + client.coutTransport, 0);
       const totalInterventions = enrichedTechnicians.reduce((sum, tech) => sum + (tech.totalInterventions || 0), 0);
+      const totalKm = clientsData.reduce((sum, client) => sum + client.totalKm, 0);
       
       setGlobalStats({
         totalTechnicians: enrichedTechnicians.length,
@@ -374,6 +390,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
         avgClientEfficiency: clientsData.length > 0
           ? clientsData.reduce((sum, client) => sum + calculateClientEfficiencyScore(client.kmMoyenParIntervention), 0) / clientsData.length
           : 0,
+        totalKm,
       });
       
       showNotification(
@@ -439,10 +456,10 @@ const AdminRentabiliteDashboard: React.FC = () => {
 
   const monthlyPerformanceData: MonthlyPerformance[] = periodeStats.map((periode, index) => ({
     month: periode.mois.split('-')[0],
-    technicianRewards: Math.round(Math.random() * 10000), // Simulé
+    technicianRewards: Math.round(Math.random() * 10000),
     clientTransportCost: periode.coutTransport,
     interventions: periode.nbInterventions,
-    profitMargin: Math.round((Math.random() * 50) + 50), // Simulé
+    profitMargin: Math.round((Math.random() * 50) + 50),
   }));
 
   const efficiencyRadarData: EfficiencyData[] = [
@@ -454,11 +471,26 @@ const AdminRentabiliteDashboard: React.FC = () => {
     { category: 'Profit', technician: 80, client: 65, fullMark: 100 },
   ];
 
-  const profitDistributionData = [
-    { name: 'Récompenses Techniciens', value: globalStats.totalRewards, color: colors.blueAccent[500] },
-    { name: 'Coûts Transport', value: globalStats.totalTransportCost, color: colors.redAccent[500] },
-    { name: 'Profit Net', value: globalStats.totalProfit > 0 ? globalStats.totalProfit : 0, color: colors.greenAccent[500] },
-  ];
+  // Fonction corrigée pour les données du Pie Chart
+  const getProfitDistributionData = (): PieDataPoint[] => {
+    return [
+      { 
+        name: 'Récompenses Techniciens', 
+        value: globalStats.totalRewards, 
+        color: colors.blueAccent[500] 
+      },
+      { 
+        name: 'Coûts Transport', 
+        value: globalStats.totalTransportCost, 
+        color: colors.redAccent[500] 
+      },
+      { 
+        name: 'Profit Net', 
+        value: globalStats.totalProfit > 0 ? globalStats.totalProfit : 0, 
+        color: colors.greenAccent[500] 
+      },
+    ].filter(item => item.value > 0); // Filtrer les valeurs nulles
+  };
 
   // Fonctions utilitaires
   const getTierInfo = (points: number): BonusTier => {
@@ -574,20 +606,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
         transition: "margin-left 0.3s ease",
       }}
     >
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <DashboardIcon sx={{ fontSize: 40, color: colors.primary[600] }} />
-          <Box>
-            <Typography variant="h4" fontWeight="bold">
-              Tableau de Bord Rentabilité
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Analyse complète de la rentabilité des techniciens et clients
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+    
 
       {error && (
         <Alert 
@@ -604,7 +623,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
         </Alert>
       )}
 
-      {/* Filtres rapides - Remplacé Grid avec Box flex */}
+      {/* Filtres rapides */}
       <Paper sx={{ p: 2, mb: 3, bgcolor: colors.primary[400] }}>
         <Box sx={{ 
           display: 'flex', 
@@ -666,6 +685,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
               variant="outlined"
               startIcon={<Refresh />}
               onClick={fetchAllData}
+              sx={{color:"#131314ff", borderColor:"#d8dce6ff", bgcolor:"#d8dce6ff"}}
               fullWidth={isMobile}
             >
               Actualiser
@@ -699,7 +719,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
 
       {/* Vue d'ensemble */}
       <TabPanel value={tabValue} index={0}>
-        {/* KPI Cards - Remplacé Grid avec Box flex */}
+        {/* KPI Cards */}
         <Box sx={{ 
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
@@ -820,7 +840,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
           </Card>
         </Box>
 
-        {/* Charts Row 1 - Remplacé Grid */}
+        {/* Charts Row 1 */}
         <Box sx={{ 
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
@@ -854,7 +874,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
             </Paper>
           </Box>
 
-          {/* Distribution des Coûts */}
+          {/* Distribution des Coûts - CORRIGÉ */}
           <Box sx={{ flex: 1 }}>
             <Paper sx={{ p: 3, height: 400, bgcolor: colors.primary[400] }}>
               <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
@@ -863,16 +883,20 @@ const AdminRentabiliteDashboard: React.FC = () => {
               <ResponsiveContainer width="100%" height="85%">
                 <PieChart>
                   <Pie
-                    data={profitDistributionData}
+                    data={getProfitDistributionData()}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => {
+                      // Correction: gérer le cas où percent est undefined
+                      const percentage = percent || 0;
+                      return `${name}: ${(percentage * 100).toFixed(0)}%`;
+                    }}
                     outerRadius={100}
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {profitDistributionData.map((entry, index) => (
+                    {getProfitDistributionData().map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -886,7 +910,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Charts Row 2 - Remplacé Grid */}
+        {/* Charts Row 2 */}
         <Box sx={{ 
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
@@ -1229,13 +1253,12 @@ const AdminRentabiliteDashboard: React.FC = () => {
 
       {/* Analyses Tab */}
       <TabPanel value={tabValue} index={3}>
-        {/* Remplacé Grid avec Box flex */}
         <Box sx={{ 
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'column',
           gap: 3
         }}>
-          {/* Scatter Chart - Pleine largeur */}
+          {/* Scatter Chart */}
           <Box sx={{ width: '100%' }}>
             <Paper sx={{ p: 3, bgcolor: colors.primary[400] }}>
               <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
@@ -1336,7 +1359,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
               </Paper>
             </Box>
 
-            {/* Distribution des Interventions */}
+            {/* Distribution des Interventions - CORRIGÉ */}
             <Box>
               <Paper sx={{ p: 3, height: 300, bgcolor: colors.primary[400] }}>
                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
@@ -1347,9 +1370,9 @@ const AdminRentabiliteDashboard: React.FC = () => {
                     <PieChart>
                       <Pie
                         data={[
-                          { name: 'Hauts Performants', value: Math.round(technicians.filter(t => (t.performanceScore || 0) >= 80).length / technicians.length * 100) },
-                          { name: 'Moyens', value: Math.round(technicians.filter(t => (t.performanceScore || 0) >= 60 && (t.performanceScore || 0) < 80).length / technicians.length * 100) },
-                          { name: 'À améliorer', value: Math.round(technicians.filter(t => (t.performanceScore || 0) < 60).length / technicians.length * 100) },
+                          { name: 'Hauts Performants', value: technicians.length > 0 ? Math.round(technicians.filter(t => (t.performanceScore || 0) >= 80).length / technicians.length * 100) : 0 },
+                          { name: 'Moyens', value: technicians.length > 0 ? Math.round(technicians.filter(t => (t.performanceScore || 0) >= 60 && (t.performanceScore || 0) < 80).length / technicians.length * 100) : 0 },
+                          { name: 'À améliorer', value: technicians.length > 0 ? Math.round(technicians.filter(t => (t.performanceScore || 0) < 60).length / technicians.length * 100) : 0 },
                         ]}
                         cx="50%"
                         cy="50%"
@@ -1376,9 +1399,8 @@ const AdminRentabiliteDashboard: React.FC = () => {
         </Box>
       </TabPanel>
 
-      {/* Statistiques Tab */}
+      {/* Statistiques Tab - CORRIGÉ */}
       <TabPanel value={tabValue} index={4}>
-        {/* Remplacé Grid avec Box flex */}
         <Box sx={{ 
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
@@ -1389,7 +1411,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
             minWidth: isMobile ? '100%' : '0'
           }
         }}>
-          {/* Statistiques Globales */}
+          {/* Statistiques Globales - CORRIGÉ */}
           <Box sx={{ flex: 1 }}>
             <Paper sx={{ p: 3, bgcolor: colors.primary[400] }}>
               <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
@@ -1409,16 +1431,26 @@ const AdminRentabiliteDashboard: React.FC = () => {
                 </Card>
                 <Card sx={{ p: 2, bgcolor: colors.primary[300] }}>
                   <Typography variant="body2" color="textSecondary">Km Moyen Global</Typography>
-                  <Typography variant="h5">{globalStats.totalInterventions > 0 ? (villesRentabilite.reduce((sum, v) => sum + v.totalKm, 0) / globalStats.totalInterventions).toFixed(1) : 0} km</Typography>
+                  <Typography variant="h5">
+                    {globalStats.totalInterventions > 0 
+                      ? (globalStats.totalKm / globalStats.totalInterventions).toFixed(1) 
+                      : 0} km
+                  </Typography>
                 </Card>
                 <Card sx={{ p: 2, bgcolor: colors.primary[300] }}>
                   <Typography variant="body2" color="textSecondary">Coût Moyen/Km</Typography>
-                  <Typography variant="h5">{globalStats.totalKm > 0 ? (globalStats.totalTransportCost / globalStats.totalKm).toFixed(2) : 0} DH/km</Typography>
+                  <Typography variant="h5">
+                    {globalStats.totalKm > 0 
+                      ? (globalStats.totalTransportCost / globalStats.totalKm).toFixed(2) 
+                      : 0} DH/km
+                  </Typography>
                 </Card>
                 <Card sx={{ p: 2, bgcolor: colors.primary[300] }}>
                   <Typography variant="body2" color="textSecondary">Marge Nette</Typography>
                   <Typography variant="h5" color={globalStats.totalProfit >= 0 ? 'success.main' : 'error.main'}>
-                    {globalStats.totalRewards > 0 ? ((globalStats.totalProfit / globalStats.totalRewards) * 100).toFixed(1) : 0}%
+                    {globalStats.totalRewards > 0 
+                      ? ((globalStats.totalProfit / globalStats.totalRewards) * 100).toFixed(1) 
+                      : 0}%
                   </Typography>
                 </Card>
               </Box>
@@ -1504,6 +1536,7 @@ const AdminRentabiliteDashboard: React.FC = () => {
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <Button
+          sx={{bgcolor:"#d8dce6ff"}}
             startIcon={<Download />}
             onClick={() => {
               exportToCSV('technicians');
