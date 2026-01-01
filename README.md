@@ -1,69 +1,54 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## **Frontend README.md (React + TypeScript + MUI)**
 
-Currently, two official plugins are available:
+```markdown
+# Digital Voucher Management Frontend
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+A modern, responsive web application for managing technician interventions, voucher submissions, and admin analytics. Built with React, TypeScript, and Material-UI for a seamless user experience.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## **Features**
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### **Technician**
+- Submit intervention forms with voucher details and photo uploads.
+- View interventions with statuses: Pending, Rejected.
+- Track bonuses and efficiency.
+- Interactive dashboard displaying performance metrics.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### **Admin**
+- View all technicians, clients, and interventions.
+- Accept or reject interventions based on form and photo comparison.
+- Monitor technician efficiency, bonuses, and overall profitability.
+- Dashboard for comprehensive analytics.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### **Communication & State Management**
+- Axios for API requests.
+- Redux for state management and component communication.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## **Technologies Used**
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- React.js (Vite)
+- TypeScript & JavaScript
+- Material-UI (MUI)
+- Pro Sidebar
+- Charts.js for analytics
+- Axios for API calls
+- Redux Toolkit
+- Docker (works with backend containers)
+
+---
+
+## **Getting Started**
+
+### **Prerequisites**
+- Node.js 18+
+- npm or yarn
+- Backend API running locally
+
+### **Run Locally**
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/digital-voucher-frontend.git
