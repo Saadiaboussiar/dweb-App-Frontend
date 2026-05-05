@@ -42,18 +42,19 @@ export const editProfileData=async (userEmail:string,data:Partial<profileDataTyp
     }
 }
 
-export const getProfileData=async (userEmail:string):Promise<profileDataType>=>{
-
-    try{
-        const response=await api.get(`/user/getProfile/${userEmail}`);
-
-        return response.data
-        
-    }catch(err){
-        console.log("error fetching user:",userEmail,err);
+export const getProfileData = async (userEmail: string): Promise<profileDataType> => {
+    try {
+        const encoded = encodeURIComponent(userEmail); // 👈
+        const response = await api.get(`/user/getProfile/${encoded}`);
+        return response.data;
+    } catch(err) {
+        console.log("error fetching user:", userEmail, err);
         return UNDEFINED_VALUES;
     }
 }
+
+const email = sessionStorage.getItem("userEmail");
+console.log("email:", email); // is it null?
 
 export const uploadProfilePhoto=async (file:File,userEmail:string)=>{
 

@@ -763,8 +763,10 @@ const AdminTechnicianBonusDashboard: React.FC = () => {
             display: "flex", 
             gap: 2, 
             width: isMobile ? '100%' : 'auto',
-            mt: isMobile ? 2 : 0 
+            mt: isMobile ? 2 : 0,
+            mr : isMobile ? 0 : 3,
           }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             <Button
               variant="outlined"
               startIcon={<Refresh />}
@@ -785,6 +787,7 @@ const AdminTechnicianBonusDashboard: React.FC = () => {
             >
               Exporter CSV
             </Button>
+            </Box>
           </Box>
         </Box>
       </Paper>
